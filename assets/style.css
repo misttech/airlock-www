@@ -1,0 +1,287 @@
+/*
+ * Copyright 2026 Mist Tecnologia LTDA. All rights reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Adapted from The Monospace Web
+ *   Copyright (c) Oskar Wickstrom — MIT
+ *   https://github.com/owickstrom/the-monospace-web
+ *
+ * The same design system the Airlock dashboard uses, reduced to what a
+ * document needs: everything lands on a character grid, 1ch horizontally and
+ * --line-height vertically. For a tool whose primary interface is a terminal,
+ * that is the honest aesthetic, and it costs no framework and no build step —
+ * this site is HTML and CSS, served as written.
+ */
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("jetbrains-mono-latin.woff2") format("woff2");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --line-height: 1.2rem;
+  --border-thickness: 2px;
+
+  --text-color: #000;
+  --text-color-alt: #666;
+  --background-color: #fff;
+  --background-color-alt: #eee;
+
+  /* The one accent, and it is used for one thing: the status notice. Never to
+     decorate. 8.04:1 on white. */
+  --color-danger: #a11212;
+
+  --font-weight-normal: 500;
+  --font-weight-medium: 600;
+  --font-weight-bold: 800;
+
+  font-family: var(--font-family);
+  font-optical-sizing: auto;
+  font-weight: var(--font-weight-normal);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-size: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-color: #fff;
+    --text-color-alt: #aaa;
+    --background-color: #000;
+    --background-color-alt: #111;
+    --color-danger: #e05252; /* 5.50:1 on black — selected, not flipped */
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+body {
+  margin: 0 auto;
+  padding: calc(var(--line-height) * 2) 2ch;
+  /* A document width, unlike the dashboard: prose past 80ch is hard to read. */
+  max-width: 80ch;
+  line-height: var(--line-height);
+}
+
+body > * + * {
+  margin-top: var(--line-height);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height);
+  margin: calc(var(--line-height) * 2) 0 var(--line-height);
+  text-transform: uppercase;
+}
+h1 {
+  font-size: 2rem;
+  line-height: calc(var(--line-height) * 2);
+}
+h2 {
+  font-size: 1rem;
+}
+h3 {
+  font-size: 1rem;
+  color: var(--text-color-alt);
+}
+
+p,
+ul,
+ol {
+  margin: 0 0 var(--line-height);
+}
+
+a {
+  color: var(--text-color);
+  text-decoration-thickness: var(--border-thickness);
+  text-underline-offset: 2px;
+}
+a:hover {
+  background: var(--background-color-alt);
+}
+
+strong {
+  font-weight: var(--font-weight-bold);
+}
+
+code {
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  background: var(--background-color-alt);
+  padding: 0 0.5ch;
+}
+
+pre {
+  border: var(--border-thickness) solid var(--text-color);
+  padding: var(--line-height) 1ch;
+  overflow-x: auto;
+  margin: 0 0 var(--line-height);
+}
+pre code {
+  background: none;
+  padding: 0;
+}
+
+ul {
+  list-style-type: square;
+  padding-left: 2ch;
+}
+ol {
+  padding-left: 3ch;
+}
+li {
+  margin-bottom: calc(var(--line-height) / 2);
+}
+
+hr {
+  border: none;
+  height: var(--line-height);
+  margin: calc(var(--line-height) * 1.5) 0;
+  position: relative;
+}
+hr:after {
+  content: "";
+  position: absolute;
+  top: calc(var(--line-height) / 2 - var(--border-thickness));
+  left: 0;
+  width: 100%;
+  border-top: calc(var(--border-thickness) * 3) double var(--text-color);
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: var(--line-height);
+}
+th,
+td {
+  padding: calc(var(--line-height) / 2) 1ch;
+  text-align: left;
+  vertical-align: top;
+  line-height: var(--line-height);
+}
+thead th {
+  text-transform: uppercase;
+  font-weight: var(--font-weight-bold);
+  border-bottom: calc(var(--border-thickness) * 2) double var(--text-color);
+}
+tbody tr + tr td {
+  border-top: 1px solid var(--text-color-alt);
+}
+
+.masthead {
+  border-bottom: var(--border-thickness) solid var(--text-color);
+  padding-bottom: var(--line-height);
+}
+.masthead h1 {
+  margin: 0;
+}
+.tagline {
+  color: var(--text-color-alt);
+}
+
+/*
+ * The status notice is the one place colour appears, and it is deliberately
+ * near the top. Airlock is early, and a landing page that buries that would be
+ * selling something the documentation contradicts.
+ */
+.status {
+  border: var(--border-thickness) solid var(--color-danger);
+  padding: var(--line-height) 1ch;
+}
+.status strong {
+  color: var(--color-danger);
+}
+
+.muted {
+  color: var(--text-color-alt);
+}
+
+.cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 3ch;
+}
+.cols > * {
+  flex: 1 1 30ch;
+}
+
+footer {
+  border-top: var(--border-thickness) solid var(--text-color);
+  padding-top: var(--line-height);
+  color: var(--text-color-alt);
+}
+
+figure {
+  margin: 0 0 var(--line-height);
+}
+figure pre {
+  margin-bottom: calc(var(--line-height) / 2);
+}
+figcaption {
+  color: var(--text-color-alt);
+}
+
+/* ---- Beta signup ---------------------------------------------------------- */
+
+.cta {
+  border: var(--border-thickness) solid var(--text-color);
+  padding: var(--line-height) 1ch;
+}
+.cta h2 {
+  margin-top: 0;
+}
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1ch;
+}
+.cta-row input {
+  flex: 1 1 28ch;
+}
+.cta input,
+.cta button {
+  border: var(--border-thickness) solid var(--text-color);
+  padding: calc(var(--line-height) / 2 - var(--border-thickness)) calc(1ch - var(--border-thickness));
+  font: inherit;
+  font-variant-numeric: inherit;
+  height: calc(var(--line-height) * 2);
+  background: var(--background-color);
+  color: var(--text-color);
+  line-height: normal;
+  appearance: none;
+  border-radius: 0;
+}
+.cta button {
+  text-transform: uppercase;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+.cta button:hover {
+  background: var(--text-color);
+  color: var(--background-color);
+}
+.cta button:active {
+  transform: translate(2px, 2px);
+}
+.cta input:focus-visible,
+.cta button:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+}
+.cta label {
+  display: block;
+  text-transform: uppercase;
+}
