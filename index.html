@@ -47,8 +47,8 @@
       <p class="muted">
         In particular, tenant isolation is incomplete: callers are authenticated and session
         records are scoped, but images, volumes, quotas, and guest networking are still
-        shared. Do not run mutually distrusting tenants on one host. The gaps are enumerated
-        in <code>docs/tenancy.md</code> rather than glossed over.
+        shared. Do not run mutually distrusting tenants on one host. Every gap is written
+        down and shared with beta participants rather than glossed over.
       </p>
     </div>
 
@@ -212,30 +212,26 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
 
     <h2>Documentation</h2>
 
-    <ul>
-      <li><a href="https://github.com/misttech/airlock/blob/main/docs/architecture.md">Architecture</a> — components, the cloud seam, session lifecycle</li>
-      <li><a href="https://github.com/misttech/airlock/blob/main/docs/containment.md">Containment</a> — what stops hostile guest code, and how it is proven</li>
-      <li><a href="https://github.com/misttech/airlock/blob/main/docs/remote-access.md">Remote access</a> — mutual TLS, certificate identity, forwarded user tokens</li>
-      <li><a href="https://github.com/misttech/airlock/blob/main/docs/tenancy.md">Tenancy</a> — what is isolated today, and honestly what is not</li>
-      <li><a href="https://github.com/misttech/airlock/blob/main/docs/observability.md">Observability</a> — the OpenTelemetry signals and the audit trail</li>
-      <li><a href="https://github.com/misttech/airlock/blob/main/docs/images.md">Images</a> — OCI ref to a guest rootfs, daemonless</li>
-    </ul>
+    <p>
+      Airlock ships with written documentation covering the architecture and the cloud seam,
+      what stops hostile guest code and how that is proven, the remote-access model — mutual
+      TLS, certificate identity, forwarded user tokens — the OpenTelemetry signals and audit
+      trail, the OCI-to-rootfs image pipeline, and an honest account of what tenant isolation
+      does and does not cover today.
+    </p>
 
-    <h2>Related</h2>
-
-    <ul>
-      <li>
-        <a href="https://github.com/misttech/airlock-ui">airlock-ui</a> — a read-only web
-        dashboard for a fleet. A client of the same API; it stores nothing.
-      </li>
-    </ul>
+    <p>
+      It is not public yet. Beta participants get the repository, the documentation, and the
+      same account of the open problems that we work from.
+      <a href="#beta">Request an invite</a>.
+    </p>
 
     <hr />
 
     <footer>
       <p>
-        <a href="https://github.com/misttech/airlock">github.com/misttech/airlock</a> ·
-        Apache License 2.0 · Copyright 2026 Mist Tecnologia LTDA
+        Apache License 2.0 · Copyright 2026 Mist Tecnologia LTDA ·
+        <a href="mailto:getairlock@mist-os.com">getairlock@mist-os.com</a>
       </p>
     </footer>
 

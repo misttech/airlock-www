@@ -1,7 +1,6 @@
 # airlock-www
 
-The website for [Airlock](https://github.com/misttech/airlock), published to
-GitHub Pages.
+The website for Airlock, published to GitHub Pages.
 
 ## No build step
 
@@ -17,8 +16,7 @@ python3 -m http.server 8000
 
 ## Design
 
-The stylesheet is the same system the
-[dashboard](https://github.com/misttech/airlock-ui) uses, adapted from
+The stylesheet is the same system the Airlock dashboard uses, adapted from
 [The Monospace Web](https://github.com/owickstrom/the-monospace-web) (MIT) and
 reduced to what a document needs. Everything lands on a character grid. For a
 tool whose primary interface is a terminal, that is the honest aesthetic.
@@ -35,7 +33,11 @@ something its own documentation contradicts.
 This lives outside the `airlock` repository so that a web toolchain never lands
 there, and so the site can be public while the code is not.
 
-Claims on this page are drawn from the Airlock README and `docs/`. **If a claim
-here outruns what those say, the page is wrong** — particularly around tenant
-isolation, which `docs/tenancy.md` documents honestly and this page must not
-oversell.
+Claims on this page are drawn from the Airlock README and its documentation.
+**If a claim here outruns what those say, the page is wrong** — particularly
+around tenant isolation, which the project documents honestly and this page must
+not oversell.
+
+This repository is public while the Airlock repositories are not, so the page
+links to no internal document. Add those links only when the code repository is
+public and the links will actually resolve for a visitor.
