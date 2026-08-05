@@ -39,6 +39,16 @@ The script only prefills the message body. With JavaScript disabled the plain
 link still works and the address is printed in full to be copied, so **any
 change here must keep working without JavaScript**.
 
+**A `mailto:` is not enough on its own.** It does something only for a visitor
+whose browser has a mail client registered as its handler — being signed into
+webmail in another tab is not that, and the click silently does nothing. A
+browser cannot report whether a `mailto:` was handled, so there is no failure to
+detect and nothing to fall back *to* after the fact. Submitting therefore
+attempts the `mailto:` and reveals the composed message as copyable text in the
+same gesture. That covers every mail setup without guessing which webmail the
+visitor uses, and without the external origin a Gmail or Outlook compose link
+would put on a page that has none. `make check` enforces that both halves stay.
+
 ## Working on it
 
 ```sh

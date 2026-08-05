@@ -79,6 +79,11 @@ def main() -> int:
     if "mailto:getairlock@" not in src:
         fail("the plain mailto link is gone — the form would need JavaScript")
 
+    # ...and must keep working for a visitor whose browser has no mail handler,
+    # which is every webmail user. A mailto: alone silently does nothing there.
+    if 'id="beta-fallback"' not in src or 'id="beta-copy"' not in src:
+        fail("the copyable fallback is gone — the form would need a mail handler")
+
     for f in failures:
         print(f"  FAIL  {f}")
     if failures:
