@@ -19,6 +19,13 @@ PAGE = ROOT / "index.html"
 # Repositories that are private. A link to one 404s for every visitor.
 PRIVATE_REPOS = ("github.com/misttech/airlock", "github.com/misttech/airlock-ui")
 
+# The one origin the page may talk to: the beta form's endpoint, whose source is
+# scripts/beta-form.gs. It is somewhere the page *sends* to on an explicit
+# click, never somewhere it loads from — that distinction is the whole of the
+# no-external-origin rule, so the two are checked separately below.
+ENDPOINT_PREFIX = "https://script.google.com/macros/s/"
+ENDPOINT_PLACEHOLDER = "REPLACE_WITH_DEPLOYMENT_ID"
+
 failures: list[str] = []
 
 
@@ -66,23 +73,40 @@ def main() -> int:
         if not (ROOT / ref).exists():
             fail(f"missing asset: {ref}")
 
-    # No external origin: the CSP forbids it, and the page must observe nobody.
+    # Nothing is *loaded* from anywhere else. This is the rule that keeps the
+    # page from observing its visitors, and it has no exceptions.
     for url in re.findall(r'(?:href|src|srcset)="(https?://[^"]+)"', src):
         fail(f"external origin: {url}")
+
+    # A form may *send* to exactly one place, and only the beta endpoint.
+    for url in re.findall(r'action="([^"]+)"', src):
+        if not url.startswith(ENDPOINT_PREFIX):
+            fail(f"a form posts somewhere that is not the beta endpoint: {url}")
+        elif ENDPOINT_PLACEHOLDER in url:
+            fail(
+                "the beta endpoint is still the placeholder — deploy "
+                "scripts/beta-form.gs and paste its URL (docs/beta-form.md)"
+            )
 
     # No link into a repository a visitor cannot open.
     for repo in PRIVATE_REPOS:
         if repo in src:
             fail(f"links to a private repository: {repo}")
 
-    # The beta form must keep working without JavaScript.
-    if "mailto:getairlock@" not in src:
-        fail("the plain mailto link is gone — the form would need JavaScript")
+    # The beta form must post for real, so a visitor with JavaScript disabled
+    # gets a submitted form rather than a button that does nothing.
+    if 'method="post"' not in src:
+        fail("the form no longer posts — it would need JavaScript to work")
 
-    # ...and must keep working for a visitor whose browser has no mail handler,
-    # which is every webmail user. A mailto: alone silently does nothing there.
+    # A cross-origin POST is opaque by design, so a request that never left is
+    # invisible unless the page hands over something the visitor can send.
     if 'id="beta-fallback"' not in src or 'id="beta-copy"' not in src:
-        fail("the copyable fallback is gone — the form would need a mail handler")
+        fail("the copyable fallback is gone — a failed submit would be silent")
+
+    # And the address stays printed, so there is a way through even if the
+    # endpoint is retired.
+    if "mailto:getairlock@" not in src:
+        fail("the plain mailto link is gone — the endpoint is the only way in")
 
     for f in failures:
         print(f"  FAIL  {f}")

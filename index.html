@@ -57,7 +57,20 @@
         than with everyone at once. Tell us what you would run in it.
       </p>
 
-      <form id="beta-form">
+      <!--
+        A real POST, so it works with JavaScript disabled: the browser navigates
+        to the endpoint and reads its reply. The script below upgrades that to
+        an inline confirmation, and nothing else.
+
+        The endpoint is a Google Apps Script web app whose source is in this
+        repository at scripts/beta-form.gs. It is the page's one external
+        origin, and the only one: this page still *loads* nothing from anybody.
+      -->
+      <form
+        id="beta-form"
+        method="post"
+        action="https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID/exec"
+      >
         <label for="beta-email" class="muted">your email</label>
         <div class="cta-row">
           <input
@@ -68,30 +81,44 @@
             autocomplete="email"
             required
           />
-          <button type="submit">Request invite</button>
+          <button type="submit" id="beta-submit">Request invite</button>
+        </div>
+
+        <label for="beta-about" class="muted">what you would run in it (optional)</label>
+        <textarea id="beta-about" name="about" rows="3"></textarea>
+
+        <!--
+          Honeypot. Off-screen and aria-hidden, so a person never encounters it
+          and a bot filling every input does. The endpoint drops anything that
+          arrives with it set.
+        -->
+        <div class="trap" aria-hidden="true">
+          <label for="beta-website">leave this empty</label>
+          <input type="text" id="beta-website" name="website" tabindex="-1" autocomplete="off" />
         </div>
       </form>
 
-      <p class="muted">
-        This composes a message to
-        <a href="mailto:getairlock@mist-os.com?subject=Airlock%20beta%20invite">getairlock@mist-os.com</a>
-        in your mail app, or hands you the text to send yourself. No form service, no
-        tracker, nothing stored here — the mail goes straight to us.
+      <p class="muted" id="beta-note">
+        This goes to <a href="mailto:getairlock@mist-os.com?subject=Airlock%20beta%20invite">getairlock@mist-os.com</a>,
+        which is us. No analytics, no tracker, no third-party form service — the endpoint
+        is ours and its source is in this site's repository.
       </p>
 
+      <div class="fallback" id="beta-ok" hidden role="status" aria-live="polite">
+        <p><strong>Your request is in.</strong> We will mail you at the address you gave.</p>
+      </div>
+
       <!--
-        A mailto: does something only for a visitor whose browser has a mail
-        client registered as its handler. Being signed into webmail in another
-        tab is not that: the click silently does nothing, and the visitor has no
-        way to tell that from a page that is simply broken. So the composed
-        message is always offered as selectable text as well, which needs no
-        handler, no external origin, and no guess about which webmail they use.
+        The error path. A cross-origin POST is opaque by design — the page
+        cannot read the reply — so a request that never left is the one failure
+        worth handling, and the only honest answer is a message the visitor can
+        send by hand. This is also what the whole form degrades to if the
+        endpoint ever goes away.
       -->
       <div class="fallback" id="beta-fallback" hidden>
         <p>
-          <strong>Your mail app should have opened.</strong> If nothing happened —
-          webmail signed in on another tab usually is not registered as one — copy this
-          and send it from wherever you read mail.
+          <strong>That did not go through.</strong> Copy this and send it from wherever
+          you read mail, and we will pick it up there.
         </p>
         <label for="beta-message" class="muted">
           to getairlock@mist-os.com · subject: Airlock beta invite
@@ -247,34 +274,49 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
     </footer>
 
     <script>
-      // Progressive enhancement only: the link above works with this disabled.
-      // Builds a mailto from the typed address so the request carries it even
-      // when the visitor's mail client is configured with a different one.
-      //
-      // The mailto is attempted and the copyable message revealed in the same
-      // gesture, because a browser cannot report whether a mailto: was handled.
-      // Nothing fires on failure, so waiting for an error to show the fallback
-      // would mean showing it never.
+      // Progressive enhancement only. The form posts for real with this
+      // disabled; all this adds is staying on the page to confirm, instead of
+      // navigating to the endpoint's own reply.
+      var form = document.getElementById("beta-form");
+      var submit = document.getElementById("beta-submit");
+      var ok = document.getElementById("beta-ok");
       var fallback = document.getElementById("beta-fallback");
       var message = document.getElementById("beta-message");
       var copied = document.getElementById("beta-copied");
 
-      document.getElementById("beta-form").addEventListener("submit", function (e) {
-        e.preventDefault();
+      form.addEventListener("submit", function (e) {
         var email = document.getElementById("beta-email").value.trim();
-        if (!email) return;
-        var body =
-          "Please add me to the Airlock beta.\n\nEmail: " + email + "\n\nWhat I would run in it:\n";
+        if (!email) return; // let the browser's own validation speak
+        e.preventDefault();
 
-        message.value = body;
-        copied.textContent = "";
-        fallback.hidden = false;
+        // URLSearchParams sends form-urlencoded, which is CORS-safelisted, so
+        // there is no preflight — an Apps Script endpoint answers OPTIONS with
+        // a redirect and would fail one. no-cors because the reply is not
+        // needed: the confirmation the visitor wants is the mail we send them.
+        var body = new URLSearchParams(new FormData(form));
 
-        window.location.href =
-          "mailto:getairlock@mist-os.com?subject=" +
-          encodeURIComponent("Airlock beta invite") +
-          "&body=" +
-          encodeURIComponent(body);
+        submit.disabled = true;
+        submit.textContent = "Sending";
+
+        fetch(form.action, { method: "POST", mode: "no-cors", body: body })
+          .then(function () {
+            form.hidden = true;
+            document.getElementById("beta-note").hidden = true;
+            ok.hidden = false;
+          })
+          .catch(function () {
+            // Only a request that never left lands here. Hand over something
+            // sendable rather than asking them to try again into the dark.
+            submit.disabled = false;
+            submit.textContent = "Request invite";
+            message.value =
+              "Please add me to the Airlock beta.\n\nEmail: " +
+              email +
+              "\n\nWhat I would run in it:\n" +
+              (document.getElementById("beta-about").value.trim() || "");
+            copied.textContent = "";
+            fallback.hidden = false;
+          });
       });
 
       // Selecting first means the button still leaves the visitor somewhere
