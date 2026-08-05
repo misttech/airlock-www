@@ -1,0 +1,123 @@
+{
+  // This is a checked-in VSCode workspace configuration file.
+  //
+  // It's an opt-in workspace configuration that contains settings for:
+  //  - vscode itself
+  //  - LSP settings for working correctly with the airlock-www.git checkout
+  //  - etc.
+  //
+  // In terms of precedence, VSCode uses the following order in which settings
+  // are applied (merged together).
+  //
+  //  0) default settings
+  //  1) user's settings
+  //  2) remote machine settings
+  //  3) workspace settings  (this file)
+  //  4) workspace folder settings
+  //
+  //
+  // For details, see:
+  // https://code.visualstudio.com/docs/getstarted/settings#_settings-precedence
+
+
+  ////////
+  // VSCode Workspace Contents
+  //
+  // These are the workspace folders, and general VSCode workspace
+  // configuration itself.
+  //
+  // See https://code.visualstudio.com/docs/editor/workspaces for more
+  // information on this section of the file.
+  "folders": [
+    {
+      // The whole project directory.
+      "path": "."
+    }
+  ],
+
+  ////////
+  // Recommended Extensions for VSCode and airlock-www
+  //
+  "extensions": {
+    "recommendations": [
+      // The site is hand-written HTML and CSS; nothing here needs a language
+      // server. Live Preview is the only genuinely useful addition.
+      "ms-vscode.live-server",
+    ],
+
+    "unwantedRecommendations": [
+    ]
+  },
+
+
+  "settings": {
+    ////////
+    // Extra file associations (patterns to languages)
+    "files.associations": {
+    },
+
+    // Matches the default airlock code style.
+    "editor.rulers": [
+        100
+    ],
+
+    // Disable graph visualization of incoming/outgoing changes, matching the
+    // airlock workspace.
+    "scm.showHistoryGraph": false,
+
+
+
+    ////////
+    // Markdown
+    //
+    "[markdown]": {
+        // Matches our static checks in infra.
+        "editor.rulers": [
+            80
+        ]
+    },
+
+    ////////
+    // VSCode file exclusions
+    //
+
+    // Files that are marked as hidden in the Workspace Explorer.
+    "files.exclude": {
+      "**/.DS_Store": true,
+      "**/.git": true,
+    },
+    "explorer.excludeGitIgnore": false,
+
+    // Files that are excluded from file-watching notifications.
+    "files.watcherExclude": {
+      "**/.DS_Store": true,
+      "**/.git": true,
+      ".cache/**": true,
+    },
+
+    // Files that are excluded from search and quick open (^P).
+    // This significantly speeds up search and avoids polluting results with
+    // build output and generated bundles.
+    "search.exclude": {
+      // Don't exclude local files used for overrides
+      "local/**": false,
+
+      // Binary assets: a search through a font returns noise, never an answer.
+      "assets/*.woff2": true,
+    },
+    "search.useIgnoreFiles": true,
+    // Don't follow symlinks (CLAUDE.md points at AGENTS.md, so results would
+    // otherwise appear twice)
+    "search.followSymlinks": false,
+
+    ////////
+    // Code coverage
+    "coverage-gutters.coverageBaseDir": ".",
+    "coverage-gutters.showLineCoverage": true,
+    "coverage-gutters.coverageFileNames": [ "lcov.info" ],
+
+    // No project configuration files to auto-detect; the Makefile is the
+    // whole build surface.
+    "task.autoDetect": "off",
+  },
+}

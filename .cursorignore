@@ -1,0 +1,4 @@
+# Binary assets. Nothing useful comes from an AI editor reading a font file or a
+# screenshot as text.
+assets/*.woff2
+assets/*.png

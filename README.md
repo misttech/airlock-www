@@ -8,11 +8,16 @@ The site is HTML and CSS, served exactly as written. There is no static site
 generator, no bundler, and no dependency to update — which means the page is
 reviewable in a diff and cannot break because a toolchain moved underneath it.
 
-To work on it, open `index.html` in a browser, or serve the directory:
+To work on it:
 
 ```sh
-python3 -m http.server 8000
+make serve     # http://localhost:8000
+make check     # HTML well-formedness, external origins, private-repo links
 ```
+
+`make check` enforces the rules in [AGENTS.md](AGENTS.md) that a machine can
+verify. It does not check layout — for that, open the page and look, in both
+colour schemes and at a narrow width.
 
 ## Design
 
@@ -41,3 +46,10 @@ not oversell.
 This repository is public while the Airlock repositories are not, so the page
 links to no internal document. Add those links only when the code repository is
 public and the links will actually resolve for a visitor.
+
+## Conventions
+
+[AGENTS.md](AGENTS.md) has the settled decisions.
+[`docs/contribute/commit-message-style-guide.md`](docs/contribute/commit-message-style-guide.md)
+has the commit format and tag list, and `.github/pull_request_template.md`
+prefills a PR description.

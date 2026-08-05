@@ -1,0 +1,6 @@
+# This file contains globs which should not be tracked by git but which should be searched by
+# tools like fd or ripgrep, for example when finding usages of APIs.
+
+# Binary assets: a grep through a font or a PNG returns noise, never an answer.
+!/assets/*.woff2
+!/assets/*.png
