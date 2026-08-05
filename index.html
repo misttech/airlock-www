@@ -36,22 +36,6 @@
       substrate.
     </p>
 
-    <figure class="shot">
-      <picture>
-        <source srcset="assets/dashboard-dark.png" media="(prefers-color-scheme: dark)" />
-        <img
-          src="assets/dashboard-light.png"
-          alt="The Airlock dashboard: a fleet of four microVMs for the mist-os tenant — three running, one paused — with per-session image, labels, uptime, VMM process id, load, memory, network rate, and a four-minute sparkline."
-          width="1680"
-          height="430"
-        />
-      </picture>
-      <figcaption>
-        The dashboard: a live fleet, read-only. Every number is pulled from the control
-        plane as you watch.
-      </figcaption>
-    </figure>
-
     <!--
       Beta signup.
 
@@ -128,6 +112,23 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
       The CLI is the first-class interface. SDKs for js, python, go, and rust wrap the same
       gRPC API.
     </p>
+
+    <figure class="shot">
+      <picture>
+        <source srcset="assets/dashboard-dark.png" media="(prefers-color-scheme: dark)" />
+        <img
+          src="assets/dashboard-light.png"
+          alt="The Airlock dashboard: a fleet of four microVMs for the mist-os tenant — three running, one paused — with per-session image, labels, uptime, VMM process id, load, memory, network rate, and a four-minute sparkline."
+          width="1680"
+          height="430"
+        />
+      </picture>
+      <figcaption>
+        The dashboard: a live fleet, read-only. Every number is pulled from the control
+        plane as you watch.
+      </figcaption>
+    </figure>
+
 
     <h2>How it is built</h2>
 
