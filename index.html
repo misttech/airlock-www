@@ -36,22 +36,21 @@
       substrate.
     </p>
 
-    <!-- Near the top on purpose. The documentation is explicit that this is
-         early software; a page that buried that would be selling something the
-         docs contradict. -->
-    <div class="status">
-      <p>
-        <strong>Status: early / experimental.</strong> The control plane is under
-        construction. Not production-ready.
-      </p>
-      <p class="muted">
-        In particular, tenant isolation is incomplete: callers are authenticated and session
-        records are scoped, but images, volumes, quotas, and guest networking are still
-        shared. Do not run mutually distrusting tenants on one host. Every gap is written
-        down and shared with beta participants rather than glossed over.
-      </p>
-    </div>
-
+    <figure class="shot">
+      <picture>
+        <source srcset="assets/dashboard-dark.png" media="(prefers-color-scheme: dark)" />
+        <img
+          src="assets/dashboard-light.png"
+          alt="The Airlock dashboard: a fleet of four microVMs for the mist-os tenant — three running, one paused — with per-session image, labels, uptime, VMM process id, load, memory, network rate, and a four-minute sparkline."
+          width="1680"
+          height="430"
+        />
+      </picture>
+      <figcaption>
+        The dashboard: a live fleet, read-only. Every number is pulled from the control
+        plane as you watch.
+      </figcaption>
+    </figure>
 
     <!--
       Beta signup.
@@ -173,7 +172,8 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
 
     <h2>The pieces</h2>
 
-    <table>
+    <div class="table-wrap">
+      <table>
       <thead>
         <tr>
           <th>binary</th>
@@ -203,27 +203,12 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
           <td>guest daemon: a vsock supervisor, PID 1 inside each microVM</td>
         </tr>
       </tbody>
-    </table>
+      </table>
+    </div>
 
     <p class="muted">
       The guest daemon is Rust because it is the one component that parses hostile input over
       vsock. It is deliberately tiny, with a minimal dependency list.
-    </p>
-
-    <h2>Documentation</h2>
-
-    <p>
-      Airlock ships with written documentation covering the architecture and the cloud seam,
-      what stops hostile guest code and how that is proven, the remote-access model — mutual
-      TLS, certificate identity, forwarded user tokens — the OpenTelemetry signals and audit
-      trail, the OCI-to-rootfs image pipeline, and an honest account of what tenant isolation
-      does and does not cover today.
-    </p>
-
-    <p>
-      It is not public yet. Beta participants get the repository, the documentation, and the
-      same account of the open problems that we work from.
-      <a href="#beta">Request an invite</a>.
     </p>
 
     <hr />

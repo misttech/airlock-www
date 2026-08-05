@@ -285,3 +285,43 @@ figcaption {
   display: block;
   text-transform: uppercase;
 }
+
+/* ---- Screenshot ----------------------------------------------------------- */
+
+/*
+ * The screenshot breaks out of the 80ch prose column. A dense table shrunk to
+ * text width is unreadable, and an unreadable screenshot of a data-dense tool
+ * argues against the tool.
+ *
+ * Sized from the body width rather than 100vw: vw includes the scrollbar, so
+ * the usual centring trick overflows by ~15px and gives the page a horizontal
+ * scrollbar it should never have.
+ */
+.shot {
+  /* Three-way clamp: as wide as the prose plus a generous margin, never wider
+     than the viewport less a scrollbar's worth, never absurd on an ultrawide. */
+  width: min(calc(100% + 60ch), calc(100vw - 2rem), 1400px);
+  margin: 0 auto var(--line-height);
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: var(--border-thickness) solid var(--text-color);
+}
+
+/*
+ * Tables scroll inside their own box rather than widening the page. Monospace
+ * columns have a hard minimum width, so on a narrow screen the table pushed the
+ * document sideways — the one thing a page body must never do.
+ */
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: var(--line-height);
+}
+.table-wrap table {
+  margin-bottom: 0;
+}
