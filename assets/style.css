@@ -285,17 +285,35 @@ figcaption {
   display: block;
   text-transform: uppercase;
 }
+/* One line between field groups, so the optional one reads as its own. */
+.cta-row + label {
+  margin-top: var(--line-height);
+}
 
 /*
- * The copyable message, revealed after submit for visitors whose browser has
- * no mail handler. A rule rather than a nested box: it is the same request,
- * carried a second way, not a separate offer.
+ * The honeypot. Moved off-screen rather than hidden with display:none or the
+ * hidden attribute, both of which a bot can cheaply detect and skip. Nothing
+ * here is a layout decision; it exists to be invisible.
+ */
+.trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/*
+ * The outcome, revealed after submit — a confirmation, or a message to send by
+ * hand when the request never left. A rule rather than a nested box: it is the
+ * same request, answered, not a separate offer.
  */
 .fallback {
   margin-top: var(--line-height);
   padding-top: var(--line-height);
   border-top: var(--border-thickness) solid var(--text-color);
 }
+.cta textarea,
 .fallback textarea {
   display: block;
   width: 100%;
@@ -307,9 +325,18 @@ figcaption {
   border-radius: 0;
   resize: vertical;
 }
+.cta textarea:focus-visible,
 .fallback textarea:focus-visible {
   outline: 2px solid var(--text-color);
   outline-offset: 2px;
+}
+.cta button[disabled] {
+  opacity: 0.6;
+  cursor: default;
+}
+.cta button[disabled]:hover {
+  background: var(--background-color);
+  color: var(--text-color);
 }
 
 /* ---- Screenshot ----------------------------------------------------------- */
