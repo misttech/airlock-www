@@ -62,21 +62,29 @@
         to the endpoint and reads its reply. The script below upgrades that to
         an inline confirmation, and nothing else.
 
-        The endpoint is a Google Apps Script web app whose source is in this
-        repository at scripts/beta-form.gs. It is the page's one external
-        origin, and the only one: this page still *loads* nothing from anybody.
+        The endpoint is a Google Form. Posting to its formResponse URL is what
+        the form's own page does, so there is nothing deployed, no code running
+        as anybody, and no OAuth grant behind this — the alternative was a
+        script holding "send email as you" and "all your spreadsheets", which
+        is a lot of authority to hold for a signup box.
+
+        The entry.N names are how a Form identifies its questions; they come
+        from its pre-filled link. docs/beta-form.md has the procedure.
+
+        This is the page's one external origin, and the only one: the page still
+        *loads* nothing from anybody.
       -->
       <form
         id="beta-form"
         method="post"
-        action="https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID/exec"
+        action="https://docs.google.com/forms/d/e/REPLACE_WITH_FORM_ID/formResponse"
       >
         <label for="beta-email" class="muted">your email</label>
         <div class="cta-row">
           <input
             type="email"
             id="beta-email"
-            name="email"
+            name="entry.REPLACE_WITH_EMAIL_FIELD_ID"
             placeholder="you@example.com"
             autocomplete="email"
             required
@@ -85,23 +93,26 @@
         </div>
 
         <label for="beta-about" class="muted">what you would run in it (optional)</label>
-        <textarea id="beta-about" name="about" rows="3"></textarea>
+        <textarea id="beta-about" name="entry.REPLACE_WITH_ABOUT_FIELD_ID" rows="3"></textarea>
 
         <!--
-          Honeypot. Off-screen and aria-hidden, so a person never encounters it
-          and a bot filling every input does. The endpoint drops anything that
-          arrives with it set.
+          Honeypot. Off-screen and aria-hidden, so a person never meets it and a
+          bot filling every input does. It carries no name attribute, so it is
+          never transmitted; the script drops the submission instead. A bot that
+          posts straight to Google without running this page is not something a
+          static site can stop, and pretending otherwise would be the wrong
+          comment to leave here.
         -->
         <div class="trap" aria-hidden="true">
           <label for="beta-website">leave this empty</label>
-          <input type="text" id="beta-website" name="website" tabindex="-1" autocomplete="off" />
+          <input type="text" id="beta-website" tabindex="-1" autocomplete="off" />
         </div>
       </form>
 
       <p class="muted" id="beta-note">
-        This goes to <a href="mailto:getairlock@mist-os.com?subject=Airlock%20beta%20invite">getairlock@mist-os.com</a>,
-        which is us. No analytics, no tracker, no third-party form service — the endpoint
-        is ours and its source is in this site's repository.
+        We read these ourselves. No analytics and no tracker — this page loads nothing
+        from anywhere, and submitting is the only time it talks to anyone. You can also
+        just mail <a href="mailto:getairlock@mist-os.com?subject=Airlock%20beta%20invite">getairlock@mist-os.com</a>.
       </p>
 
       <div class="fallback" id="beta-ok" hidden role="status" aria-live="polite">
@@ -289,10 +300,19 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
         if (!email) return; // let the browser's own validation speak
         e.preventDefault();
 
+        // Honeypot filled: report success and send nothing. A bot told it
+        // failed simply tries something else.
+        if (document.getElementById("beta-website").value.trim()) {
+          form.hidden = true;
+          document.getElementById("beta-note").hidden = true;
+          ok.hidden = false;
+          return;
+        }
+
         // URLSearchParams sends form-urlencoded, which is CORS-safelisted, so
-        // there is no preflight — an Apps Script endpoint answers OPTIONS with
-        // a redirect and would fail one. no-cors because the reply is not
-        // needed: the confirmation the visitor wants is the mail we send them.
+        // there is no preflight to fail. no-cors because the reply cannot be
+        // read across origins anyway, and is not needed: what the visitor wants
+        // confirmed is that the request left, and it did.
         var body = new URLSearchParams(new FormData(form));
 
         submit.disabled = true;

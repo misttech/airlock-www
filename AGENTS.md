@@ -36,9 +36,8 @@ Operating guide for humans and AI coding agents working in **airlock-www**.
 
 ## The beta form
 
-It posts to a Google Apps Script web app whose source is
-[`scripts/beta-form.gs`](scripts/beta-form.gs) — deployed by hand, documented in
-[`docs/beta-form.md`](docs/beta-form.md).
+It posts to a Google Form's `formResponse` URL —
+[`docs/beta-form.md`](docs/beta-form.md) is the wiring.
 
 It was a `mailto:` first. That failed for a larger group than expected: a
 `mailto:` does something only for a visitor whose browser has a mail client
@@ -46,11 +45,18 @@ registered as its handler, and being signed into webmail in another tab is not
 that. The click silently does nothing, and a browser cannot report that it did
 nothing, so there was no failure to detect and nothing to fall back *to*.
 
-Apps Script was chosen over a form service because it is not a new party. The
-mail already lands in a Google Workspace inbox, so the addresses are already
-somewhere Google can see; this adds a handler, not a processor. Its source
-lives here so the code receiving other people's email addresses is reviewable
-in a diff, rather than existing only inside one person's Google account.
+A third-party form service was rejected — a company holding other people's
+email addresses. **An Apps Script web app was written and then rejected too**,
+which is the more useful thing to record: its consent screen asks for *all your
+spreadsheets* and *send email as you*, permanently, so that a signup box works.
+A Form grants nothing at all. There is no OAuth screen, nothing deployed, and no
+code of ours executing as anybody.
+
+The trade that buys: `formResponse` is undocumented. It has worked for over a
+decade and every custom-front-end-for-Forms guide leans on it, but Google never
+promised it, and a cross-origin POST is opaque so the page cannot notice if it
+breaks. Hence the printed address, and hence checking the form for real after
+touching it.
 
 Three properties hold this together, and **a change here must keep all three**:
 

@@ -19,12 +19,12 @@ PAGE = ROOT / "index.html"
 # Repositories that are private. A link to one 404s for every visitor.
 PRIVATE_REPOS = ("github.com/misttech/airlock", "github.com/misttech/airlock-ui")
 
-# The one origin the page may talk to: the beta form's endpoint, whose source is
-# scripts/beta-form.gs. It is somewhere the page *sends* to on an explicit
-# click, never somewhere it loads from — that distinction is the whole of the
-# no-external-origin rule, so the two are checked separately below.
-ENDPOINT_PREFIX = "https://script.google.com/macros/s/"
-ENDPOINT_PLACEHOLDER = "REPLACE_WITH_DEPLOYMENT_ID"
+# The one origin the page may talk to: the beta form's Google Form. It is
+# somewhere the page *sends* to on an explicit click, never somewhere it loads
+# from — that distinction is the whole of the no-external-origin rule, so the
+# two are checked separately below.
+ENDPOINT_PREFIX = "https://docs.google.com/forms/d/e/"
+ENDPOINT_SUFFIX = "/formResponse"
 
 failures: list[str] = []
 
@@ -80,13 +80,13 @@ def main() -> int:
 
     # A form may *send* to exactly one place, and only the beta endpoint.
     for url in re.findall(r'action="([^"]+)"', src):
-        if not url.startswith(ENDPOINT_PREFIX):
+        if not (url.startswith(ENDPOINT_PREFIX) and url.endswith(ENDPOINT_SUFFIX)):
             fail(f"a form posts somewhere that is not the beta endpoint: {url}")
-        elif ENDPOINT_PLACEHOLDER in url:
-            fail(
-                "the beta endpoint is still the placeholder — deploy "
-                "scripts/beta-form.gs and paste its URL (docs/beta-form.md)"
-            )
+
+    # The form id and its question ids are filled in by hand, and a page that
+    # posts into nowhere looks exactly like one that works.
+    for placeholder in re.findall(r"REPLACE_WITH_[A-Z_]+", src):
+        fail(f"{placeholder} was never filled in — see docs/beta-form.md")
 
     # No link into a repository a visitor cannot open.
     for repo in PRIVATE_REPOS:
