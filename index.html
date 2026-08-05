@@ -130,6 +130,43 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
     </figure>
 
 
+    <h2>From agents, to agents</h2>
+
+    <p>
+      The workload Airlock exists for is code an agent just wrote, so an agent has to be
+      able to drive it without a human in the loop. Two pieces ship for that.
+    </p>
+
+    <p>
+      <strong>An MCP server</strong> — <code>airlock mcp</code> — serving fourteen tools over
+      stdio: one-shot runs, durable sessions, pause, resume, fork, plus inspection, logs and
+      live metrics. It reuses the exact helpers the CLI commands call, so there is no second
+      implementation to drift. Point a client at it and the sandbox becomes something the
+      model can reach for on its own.
+    </p>
+
+    <pre><code>{
+  "mcpServers": {
+    "airlock": { "command": "airlock", "args": ["mcp"] }
+  }
+}</code></pre>
+
+    <p>
+      One detail matters more than it looks. MCP speaks over stdin and stdout, and the guest
+      is untrusted — so guest output never touches that channel. It is captured into
+      size-capped buffers, returned inside the tool result with an explicit truncation flag,
+      and progress goes to stderr. Untrusted output cannot interleave with the protocol
+      carrying it.
+    </p>
+
+    <p>
+      <strong>An agent skill</strong>, shipped alongside it, teaching an agent
+      <em>when</em> to reach for a sandbox rather than only how: generated programs,
+      third-party scripts, adversarial input, anything that wants hard limits and no network.
+      Knowing the tools exist is not the same as knowing when the host is worth protecting
+      from.
+    </p>
+
     <h2>How it is built</h2>
 
     <div class="cols">
