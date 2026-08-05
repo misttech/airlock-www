@@ -11,10 +11,17 @@ Operating guide for humans and AI coding agents working in **airlock-www**.
   reviewable in a diff and cannot break because a toolchain moved underneath
   it. A generator would need a written justification, not a preference — and
   the site is one page.
-- **No external origin.** No CDN font, script, tracker, analytics, or embed.
-  Every asset is committed and served from this repository. The page observes
-  nobody, and that is a property to keep deliberately rather than lose to a
-  convenient embed. `make check` enforces it.
+- **Nothing is loaded from another origin.** No CDN font, script, tracker,
+  analytics, or embed. Every asset is committed and served from this
+  repository, so the page observes nobody — a property to keep deliberately
+  rather than lose to a convenient embed.
+
+  **One origin is written to**, and only one: the beta form posts to its
+  endpoint when a visitor clicks the button. Never on load, never anything
+  else. `make check` enforces the two halves separately, because they are
+  different rules — a form action is somewhere a visitor chose to send their
+  own address, and a CDN font is a third party watching everyone who reads the
+  page. Adding a *second* endpoint, or any load, needs a written justification.
 - **This repository is public; the code repositories are not.** That asymmetry
   is the reason the site lives here at all — GitHub Pages on a free plan
   requires a public repository, and putting the site in `airlock` would have
@@ -27,27 +34,37 @@ Operating guide for humans and AI coding agents working in **airlock-www**.
   adapted from [The Monospace Web](https://github.com/owickstrom/the-monospace-web)
   (MIT). Everything lands on a character grid. Colour is not decoration.
 
-## The beta form is a mailto
+## The beta form
 
-There is no server here, so a form cannot POST anywhere. The alternatives were
-a third-party form service — a dependency, and a processor holding other
-people's email addresses — or `mailto:`. `mailto:` matches how the rest of the
-project is built: no external service, nothing stored, and the sender's own
-address arrives with the request, which is the point of the signup.
+It posts to a Google Apps Script web app whose source is
+[`scripts/beta-form.gs`](scripts/beta-form.gs) — deployed by hand, documented in
+[`docs/beta-form.md`](docs/beta-form.md).
 
-The script only prefills the message body. With JavaScript disabled the plain
-link still works and the address is printed in full to be copied, so **any
-change here must keep working without JavaScript**.
+It was a `mailto:` first. That failed for a larger group than expected: a
+`mailto:` does something only for a visitor whose browser has a mail client
+registered as its handler, and being signed into webmail in another tab is not
+that. The click silently does nothing, and a browser cannot report that it did
+nothing, so there was no failure to detect and nothing to fall back *to*.
 
-**A `mailto:` is not enough on its own.** It does something only for a visitor
-whose browser has a mail client registered as its handler — being signed into
-webmail in another tab is not that, and the click silently does nothing. A
-browser cannot report whether a `mailto:` was handled, so there is no failure to
-detect and nothing to fall back *to* after the fact. Submitting therefore
-attempts the `mailto:` and reveals the composed message as copyable text in the
-same gesture. That covers every mail setup without guessing which webmail the
-visitor uses, and without the external origin a Gmail or Outlook compose link
-would put on a page that has none. `make check` enforces that both halves stay.
+Apps Script was chosen over a form service because it is not a new party. The
+mail already lands in a Google Workspace inbox, so the addresses are already
+somewhere Google can see; this adds a handler, not a processor. Its source
+lives here so the code receiving other people's email addresses is reviewable
+in a diff, rather than existing only inside one person's Google account.
+
+Three properties hold this together, and **a change here must keep all three**:
+
+- **It works with JavaScript disabled.** The form is a real `method="post"`; the
+  browser navigates to the endpoint and the endpoint answers with a page. The
+  script only upgrades that to an inline confirmation.
+- **A failed submit is never silent.** A cross-origin POST is opaque, so the
+  page cannot read the reply. A request that never left reveals a copyable
+  message instead — the same escape hatch the whole form degrades to if the
+  endpoint is ever retired.
+- **The address stays printed in full.** It is the way in that depends on
+  nothing at all.
+
+`make check` enforces each one.
 
 ## Working on it
 
