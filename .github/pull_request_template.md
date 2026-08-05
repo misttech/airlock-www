@@ -50,30 +50,31 @@ Commands you actually ran, with results. "Tests pass" is not checkable;
 -->
 
 ```
-python3 -m http.server 8000    # then open it and read the page
+make check     # structure: HTML balance, assets, origins, private links
+make serve     # then open it and actually look
 ```
+
+`make check` covers structure and nothing else. The rest needs eyes:
 
 - [ ] Looked at the rendered page, not just the diff
 - [ ] Checked light **and** dark
-- [ ] Checked a narrow viewport
-- [ ] Every link resolves for a logged-out visitor
-
-**New coverage:** <!-- what the added tests actually pin down -->
+- [ ] Checked a narrow viewport — the page body must never scroll sideways
+- [ ] Every link resolves for a **logged-out** visitor
 
 ## Site rules
 
+`make check` already enforces no external origin, no link into a private
+repository, and that every referenced asset exists. These are the ones it
+cannot judge:
+
 - [ ] **No build step** — still plain HTML and CSS, served as written. A
       generator or bundler needs a written justification, not a preference.
-- [ ] **No external origin** — no CDN font, script, tracker, analytics, or
-      embed. Assets are committed and served from this repository.
-- [ ] **No link to a private repository** — the site is public and the code is
-      not; a link a visitor cannot open is worse than no link.
 - [ ] **Claims match the documentation** — every statement is drawn from the
       Airlock README and docs. This page must never oversell what tenant
       isolation actually covers.
-- [ ] **The status notice still says the project is early** and is still near
-      the top, not buried.
-- [ ] **Renders in both light and dark**, and at a narrow width.
+- [ ] **Screenshots are of a real fleet**, not a mockup, and regenerated in
+      *both* themes if the dashboard's appearance changed.
+- [ ] **The beta form still works with JavaScript disabled.**
 
 ## Privacy
 
