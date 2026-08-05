@@ -73,10 +73,35 @@
       </form>
 
       <p class="muted">
-        This opens your mail client with a message to
-        <a href="mailto:getairlock@mist-os.com?subject=Airlock%20beta%20invite">getairlock@mist-os.com</a>.
-        No form service, no tracker, nothing stored here — the mail goes straight to us.
+        This composes a message to
+        <a href="mailto:getairlock@mist-os.com?subject=Airlock%20beta%20invite">getairlock@mist-os.com</a>
+        in your mail app, or hands you the text to send yourself. No form service, no
+        tracker, nothing stored here — the mail goes straight to us.
       </p>
+
+      <!--
+        A mailto: does something only for a visitor whose browser has a mail
+        client registered as its handler. Being signed into webmail in another
+        tab is not that: the click silently does nothing, and the visitor has no
+        way to tell that from a page that is simply broken. So the composed
+        message is always offered as selectable text as well, which needs no
+        handler, no external origin, and no guess about which webmail they use.
+      -->
+      <div class="fallback" id="beta-fallback" hidden>
+        <p>
+          <strong>Your mail app should have opened.</strong> If nothing happened —
+          webmail signed in on another tab usually is not registered as one — copy this
+          and send it from wherever you read mail.
+        </p>
+        <label for="beta-message" class="muted">
+          to getairlock@mist-os.com · subject: Airlock beta invite
+        </label>
+        <textarea id="beta-message" rows="5" readonly></textarea>
+        <div class="cta-row">
+          <button type="button" id="beta-copy">Copy message</button>
+          <span class="muted" id="beta-copied" role="status" aria-live="polite"></span>
+        </div>
+      </div>
     </section>
 
     <h2>Why a microVM, not a container</h2>
@@ -262,16 +287,49 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
       // Progressive enhancement only: the link above works with this disabled.
       // Builds a mailto from the typed address so the request carries it even
       // when the visitor's mail client is configured with a different one.
+      //
+      // The mailto is attempted and the copyable message revealed in the same
+      // gesture, because a browser cannot report whether a mailto: was handled.
+      // Nothing fires on failure, so waiting for an error to show the fallback
+      // would mean showing it never.
+      var fallback = document.getElementById("beta-fallback");
+      var message = document.getElementById("beta-message");
+      var copied = document.getElementById("beta-copied");
+
       document.getElementById("beta-form").addEventListener("submit", function (e) {
         e.preventDefault();
         var email = document.getElementById("beta-email").value.trim();
         if (!email) return;
-        var subject = encodeURIComponent("Airlock beta invite");
-        var body = encodeURIComponent(
-          "Please add me to the Airlock beta.\n\nEmail: " + email + "\n\nWhat I would run in it:\n"
-        );
+        var body =
+          "Please add me to the Airlock beta.\n\nEmail: " + email + "\n\nWhat I would run in it:\n";
+
+        message.value = body;
+        copied.textContent = "";
+        fallback.hidden = false;
+
         window.location.href =
-          "mailto:getairlock@mist-os.com?subject=" + subject + "&body=" + body;
+          "mailto:getairlock@mist-os.com?subject=" +
+          encodeURIComponent("Airlock beta invite") +
+          "&body=" +
+          encodeURIComponent(body);
+      });
+
+      // Selecting first means the button still leaves the visitor somewhere
+      // useful when the clipboard is unavailable — over plain http, or with
+      // the permission refused — instead of failing silently.
+      document.getElementById("beta-copy").addEventListener("click", function () {
+        message.focus();
+        message.select();
+        var manually = function () {
+          copied.textContent = "selected — copy it";
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(message.value).then(function () {
+            copied.textContent = "copied";
+          }, manually);
+        } else {
+          manually();
+        }
       });
     </script>
   </body>

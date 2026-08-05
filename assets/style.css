@@ -286,6 +286,32 @@ figcaption {
   text-transform: uppercase;
 }
 
+/*
+ * The copyable message, revealed after submit for visitors whose browser has
+ * no mail handler. A rule rather than a nested box: it is the same request,
+ * carried a second way, not a separate offer.
+ */
+.fallback {
+  margin-top: var(--line-height);
+  padding-top: var(--line-height);
+  border-top: var(--border-thickness) solid var(--text-color);
+}
+.fallback textarea {
+  display: block;
+  width: 100%;
+  border: var(--border-thickness) solid var(--text-color);
+  padding: calc(var(--line-height) / 2 - var(--border-thickness)) calc(1ch - var(--border-thickness));
+  font: inherit;
+  background: var(--background-color);
+  color: var(--text-color);
+  border-radius: 0;
+  resize: vertical;
+}
+.fallback textarea:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+}
+
 /* ---- Screenshot ----------------------------------------------------------- */
 
 /*
