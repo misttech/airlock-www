@@ -39,16 +39,23 @@
     <!--
       Beta signup.
 
-      GitHub Pages is static — there is no server here to receive a POST. The
-      options were a third-party form service (a dependency, and a processor
-      holding other people's email addresses) or a mailto:. mailto wins on the
-      same grounds the rest of the project is built on: no external service, no
-      JavaScript required, nothing to break, and the visitor's own address
-      arrives as the sender, which is exactly what the signup is for.
+      GitHub Pages is static — there is no server here to receive a POST, and
+      no static site generator supplies one either. So the form posts off-site.
 
-      The script only prefills the body when someone types an address; without
-      JavaScript the plain link still works, and the address is printed in full
-      so it can be copied by hand.
+      It was a mailto: first, which was wrong for a larger group than expected:
+      a mailto: does something only for a visitor whose browser has a mail
+      client registered as its handler, and webmail signed in on another tab is
+      not that. The click silently did nothing.
+
+      Of the things that can receive a POST, this one costs no grant. A
+      third-party form service is a processor holding other people's addresses,
+      and our own Apps Script endpoint wanted "send email as you" and "all your
+      spreadsheets", permanently, so that a signup box could work. A Form asks
+      for nothing.
+
+      Three properties hold it together, and scripts/check.py checks each: it
+      works without JavaScript, a failed submit is never silent, and the address
+      stays printed. See AGENTS.md and docs/beta-form.md.
     -->
     <section class="cta" id="beta">
       <h2>Request a beta invite</h2>
@@ -77,14 +84,14 @@
       <form
         id="beta-form"
         method="post"
-        action="https://docs.google.com/forms/d/e/REPLACE_WITH_FORM_ID/formResponse"
+        action="https://docs.google.com/forms/d/e/1FAIpQLSdEPuMVrCM5fBs6sPi4H21wqKPeN2-X_o-VP8hkZfzkWYGwJA/formResponse"
       >
         <label for="beta-email" class="muted">your email</label>
         <div class="cta-row">
           <input
             type="email"
             id="beta-email"
-            name="entry.REPLACE_WITH_EMAIL_FIELD_ID"
+            name="entry.1110114569"
             placeholder="you@example.com"
             autocomplete="email"
             required
@@ -93,7 +100,7 @@
         </div>
 
         <label for="beta-about" class="muted">what you would run in it (optional)</label>
-        <textarea id="beta-about" name="entry.REPLACE_WITH_ABOUT_FIELD_ID" rows="3"></textarea>
+        <textarea id="beta-about" name="entry.1163163749" rows="3"></textarea>
 
         <!--
           Honeypot. Off-screen and aria-hidden, so a person never meets it and a
