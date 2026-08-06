@@ -39,18 +39,26 @@ the printed address stays on the page.
      field `emailAddress` instead of an `entry.N`, and in a Workspace it can
      demand the visitor be signed in.
 3. Second question: **What you would run in it**, paragraph, **not** required.
-4. **Settings**, and this is the step that quietly breaks everything if missed:
-   - **Restrict to users in mist-os.com** — **off**. It is on by default inside
-     a Workspace, and it turns every outside submission into a sign-in wall.
+4. **Publish** → **Published options**. This is the step that quietly breaks
+   everything if missed:
+   - **Responders: Anyone with the link.** Inside a Workspace this defaults to
+     the organisation only, which turns every outside submission into a sign-in
+     wall — and it fails in the one way you will not notice, because you can
+     always reach your own form.
+   - *Accepting responses* — on.
+   - **Save.**
+
+   Older Forms accounts show this as **Settings → Restrict to users in
+   mist-os.com → off** instead. Same setting, same consequence.
+5. **Settings** (gear), for two more:
    - *Limit to 1 response* — **off**. It requires a Google account.
    - *Response receipts* — optional, and pleasant: Google mails the requester a
      copy of what they sent, so they get a confirmation and we still grant
      nothing.
-5. **Publish** / **Send** → the link icon → this is the form's public URL:
 
-   ```
-   https://docs.google.com/forms/d/e/<FORM_ID>/viewform
-   ```
+Do not take the form id from **Copy responder link** — it may hand you a
+shortened `forms.gle/…`, which does not contain one. The pre-filled link below
+always gives the long form.
 
 ## Get the three ids
 
