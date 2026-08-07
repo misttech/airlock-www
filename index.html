@@ -108,18 +108,34 @@
         method="post"
         action="https://docs.google.com/forms/d/e/1FAIpQLSdEPuMVrCM5fBs6sPi4H21wqKPeN2-X_o-VP8hkZfzkWYGwJA/formResponse"
       >
+        <label for="beta-name" class="muted">your name</label>
+        <input
+          type="text"
+          id="beta-name"
+          name="entry.REPLACE_WITH_NAME_FIELD_ID"
+          placeholder="jane doe"
+          autocomplete="name"
+          required
+        />
+
         <label for="beta-email" class="muted">your email</label>
-        <div class="cta-row">
-          <input
-            type="email"
-            id="beta-email"
-            name="entry.1110114569"
-            placeholder="you@example.com"
-            autocomplete="email"
-            required
-          />
-          <button type="submit" id="beta-submit">Request invite</button>
-        </div>
+        <input
+          type="email"
+          id="beta-email"
+          name="entry.1110114569"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        />
+
+        <label for="beta-company" class="muted">company (optional)</label>
+        <input
+          type="text"
+          id="beta-company"
+          name="entry.REPLACE_WITH_COMPANY_FIELD_ID"
+          placeholder="acme"
+          autocomplete="organization"
+        />
 
         <label for="beta-about" class="muted">what you would run in it (optional)</label>
         <textarea id="beta-about" name="entry.1163163749" rows="3"></textarea>
@@ -136,6 +152,8 @@
           <label for="beta-website">leave this empty</label>
           <input type="text" id="beta-website" tabindex="-1" autocomplete="off" />
         </div>
+
+        <button type="submit" id="beta-submit">Request an invite</button>
       </form>
 
       <p class="muted" id="beta-note">
@@ -394,12 +412,16 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
             // Only a request that never left lands here. Hand over something
             // sendable rather than asking them to try again into the dark.
             submit.disabled = false;
-            submit.textContent = "Request invite";
+            submit.textContent = "Request an invite";
+            var field = function (id) {
+              return document.getElementById(id).value.trim();
+            };
             message.value =
-              "Please add me to the Airlock beta.\n\nEmail: " +
-              email +
-              "\n\nWhat I would run in it:\n" +
-              (document.getElementById("beta-about").value.trim() || "");
+              "Please add me to the Airlock beta.\n\n" +
+              "Name: " + field("beta-name") + "\n" +
+              "Email: " + email + "\n" +
+              "Company: " + (field("beta-company") || "—") + "\n\n" +
+              "What I would run in it:\n" + field("beta-about");
             copied.textContent = "";
             fallback.hidden = false;
           });
