@@ -34,6 +34,18 @@ Operating guide for humans and AI coding agents working in **airlock-www**.
   adapted from [The Monospace Web](https://github.com/owickstrom/the-monospace-web)
   (MIT). Everything lands on a character grid. Colour is not decoration.
 
+## Pages
+
+Two: `index.html`, and `invite/index.html` which is the beta form on a page of
+its own. The form used to sit near the top of the home page, which put four
+fields in front of a reader before the page had said what the thing was. Its own
+page also gives the call to action somewhere to point — the bar's button, and
+the one under the lede — instead of scrolling.
+
+`scripts/check.py` applies the structural rules to both, and **finds** the form
+rather than assuming which page holds it, so moving it again cannot quietly drop
+its guarantees from the check.
+
 ## The beta form
 
 It posts to a Google Form's `formResponse` URL —

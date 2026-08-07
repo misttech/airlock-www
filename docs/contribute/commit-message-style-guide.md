@@ -15,7 +15,7 @@ Imperative, as though completing "this change will…": *Show the dashboard*, no
 
 | tag | area |
 |---|---|
-| `[page]` | `index.html` — content and structure |
+| `[page]` | `index.html`, `invite/index.html` — content and structure |
 | `[style]` | `assets/style.css` — the design system |
 | `[assets]` | fonts, screenshots, anything binary |
 | `[docs]` | `README.md`, `AGENTS.md`, this guide |

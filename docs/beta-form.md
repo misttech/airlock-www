@@ -2,7 +2,7 @@
 
 The form on the site posts to a Google Form. There is nothing to deploy and no
 code to run — you create the Form, copy its ids into
-[`index.html`](../index.html), and it works.
+[`invite/index.html`](../invite/index.html), and it works.
 
 ## Why a Form and not a script
 
@@ -87,7 +87,7 @@ https://docs.google.com/forms/d/e/1FAIpQLSc…/viewform?usp=pp_url
 
 Five values. The `entry.N`s appear in question order:
 
-| placeholder in `index.html` | from the pre-filled link |
+| placeholder in `invite/index.html` | from the pre-filled link |
 |---|---|
 | `REPLACE_WITH_FORM_ID` | the `1FAIpQLSc…` between `/d/e/` and `/viewform` |
 | `REPLACE_WITH_NAME_FIELD_ID` | first `entry.N` — the name question |
@@ -137,7 +137,7 @@ a name and bins it is worse than one that never asked.
 So, in one change:
 
 1. Add the question in the Form editor.
-2. Add the input to `index.html` with a `REPLACE_WITH_…_FIELD_ID` name.
+2. Add the input to `invite/index.html` with a `REPLACE_WITH_…_FIELD_ID` name.
 3. Read the new id and paste it in.
 4. `make check`, then submit once and confirm the new column is populated —
    not just that the submission was accepted, which it will be either way.
