@@ -21,23 +21,33 @@ Google renames things in this flow every few months. The labels below are what
 they are called now; the shape has been stable even when the wording moves.
 
 1. Go to [analytics.google.com](https://analytics.google.com).
-2. If you have no account yet: **Start measuring**. If you do: **Admin** (bottom
-   left) → **Create** → **Property**.
-3. **Account** — one per company, not per site.
-   - *Account name*: `Mist Tecnologia`
-   - *Data sharing settings*: four checkboxes, all optional, all on by default.
-     They share your data with Google for benchmarking, technical support and
-     product improvement. **Uncheck them.** None of them measure your site;
-     they only widen who sees it.
-4. **Property** — one per site.
+2. **An account already exists.** Airlock is a *property* inside it, not a
+   second account — an account is one per company and holds thousands of
+   properties, so a new one would only split one organisation across two
+   logins. **Admin** (bottom left) → the *Property* column → **Create** →
+   **Property**.
+
+   Only when starting somewhere with no account at all: **Start measuring**,
+   name the account after the company, and turn off all four *data sharing
+   settings*. They are on by default, none of them measure your site, and they
+   only widen who sees it.
+3. **Property creation** — one property per site.
    - *Property name*: `Airlock`
    - *Reporting time zone*: the one you will read the numbers in.
    - *Currency*: irrelevant here — nothing is being bought.
-5. **Business details** — industry and company size. Used for benchmarking
-   comparisons you unchecked in step 3. Answer or don't.
-6. **Business objectives** — pick *Examine user behavior*. It only preselects
-   which reports appear; nothing about collection changes.
-7. **Terms of Service** — choose **Brazil**, accept. Also accept the **Data
+4. **Business details** — industry and company size. Feeds benchmarking
+   comparisons. Answer or don't.
+5. **Business objectives** — tick **Generate leads** and **Understand web
+   and/or app traffic**. Two is the recommended maximum and those are the two:
+   the invite form is a lead form, and the other gives you visits and where they
+   came from. Not *Drive sales* — nothing is sold — and not *engagement &
+   retention*, which a two-page site does not have.
+
+   This only decides which reports appear by default. Nothing about collection
+   changes, and picking wrong costs nothing. See
+   [measuring the invite form](#measuring-the-invite-form) for the part that
+   actually makes *Generate leads* show anything.
+6. **Terms of Service** — choose **Brazil**, accept. Also accept the **Data
    Processing Terms** when offered; that is the GDPR processor agreement and you
    want it on record before any EU visitor arrives, not after.
 
@@ -140,6 +150,62 @@ After merging and deploying, with the real id in place:
 
 ---
 
+## Measuring the invite form {#measuring-the-invite-form}
+
+Ticking *Generate leads* at setup only rearranges reports. What makes a lead
+appear is an event, and this site sends one explicitly:
+
+```js
+gtag("event", "generate_lead");
+```
+
+It fires in the submit handler in [`invite/index.html`](../invite/index.html),
+once the POST has left, and it carries **no parameters** — not the name, not the
+address, not the company. Sending those would breach Google's own terms on
+personal data, and the page directly above the form tells the reader their
+address goes to us. A metric is not worth making that false.
+
+Two details worth knowing:
+
+**It has to be explicit.** Enhanced measurement's automatic `form_submit` hooks
+native form submission, and this handler calls `preventDefault()` and posts with
+`fetch`, so there is nothing for it to observe. Turning enhanced measurement on
+would not have caught this form, which is the kind of thing that looks like it
+works until you check whether the number is ever non-zero.
+
+**It counts requests that left the browser, not rows in your sheet.** The POST
+is `no-cors`, so the reply cannot be read; the event fires when the request was
+sent, not when Google confirmed it was stored. The Form's Responses tab is the
+truth. Expect GA to read slightly higher, and further off if ad blockers are
+suppressing the tag for some visitors but not the form post — the form does not
+depend on JavaScript, so it survives where the tag does not.
+
+### Mark it as a key event
+
+Until you do this, the event is recorded but is not a *conversion* and will not
+appear where you expect:
+
+**Admin** → **Events** → find `generate_lead` → toggle **Mark as key event**.
+
+It only appears in that list after it has fired at least once, so submit the form
+yourself first. Give it up to 24 hours to show in standard reports; **Realtime**
+and **DebugView** show it immediately.
+
+## Retiring an old property
+
+Deleting is optional. An unused property collects nothing and costs nothing, and
+an account holds thousands — tidiness is a fine reason, losing history you might
+later want is not.
+
+**Admin** → select the property → **Property settings** → **Move to trash can**.
+It stays restorable under *Admin → Trash can* for **35 days**; after that it and
+all its data are gone permanently, with no support path back.
+
+Before deleting, confirm nothing still sends to it. If a site is live with that
+measurement id in its `<head>`, deleting the property stops its analytics
+silently — the page still loads `gtag.js` and Google discards the hits. Dormant
+is not dead.
+
 ## What this cost
 
 Two things that were true before and are not now, recorded rather than quietly
@@ -185,8 +251,12 @@ Whatever is chosen, write down which and why, here, in this file.
 
 ## Removing it
 
-Delete the two `<script>` blocks from the `<head>` of both pages, drop
-`ANALYTICS_PREFIX` and the two checks that use it from
-[`scripts/check.py`](../scripts/check.py), and restore the "no analytics"
-wording on the invite page. Everything else is unaffected — nothing on the site
-depends on the tag being present.
+Delete the two `<script>` blocks from the `<head>` of both pages, remove the
+`generate_lead` call from the submit handler in
+[`invite/index.html`](../invite/index.html), drop `ANALYTICS_PREFIX` and the two
+checks that use it from [`scripts/check.py`](../scripts/check.py), and restore
+the "no analytics" wording on the invite page.
+
+Nothing on the site depends on the tag: the form works with JavaScript disabled
+entirely, and the `generate_lead` call is guarded, so removing the tag alone
+breaks nothing even if the call is left behind.
