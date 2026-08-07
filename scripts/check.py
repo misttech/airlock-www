@@ -14,7 +14,12 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PAGE = ROOT / "index.html"
+
+# Every page on the site. The structural rules apply to all of them; the beta
+# form's rules apply to whichever one carries the form, which is why that is
+# found rather than assumed — moving the form to its own page must not quietly
+# take its guarantees out of the check.
+PAGES = [ROOT / "index.html", ROOT / "invite" / "index.html"]
 
 # Repositories that are private. A link to one 404s for every visitor.
 PRIVATE_REPOS = ("github.com/misttech/airlock", "github.com/misttech/airlock-ui")
@@ -58,55 +63,87 @@ class Balance(html.parser.HTMLParser):
             self.stack.pop()
 
 
-def main() -> int:
-    src = PAGE.read_text()
+def check_page(page: pathlib.Path) -> str:
+    """Structural rules that hold for every page. Returns the page source."""
+    name = page.relative_to(ROOT)
+    if not page.exists():
+        fail(f"{name} is missing")
+        return ""
+    src = page.read_text()
 
     parser = Balance()
     parser.feed(src)
     if parser.stack:
-        fail(f"unclosed tags: {parser.stack}")
+        fail(f"{name}: unclosed tags: {parser.stack}")
 
-    # Every asset the page references must exist, or the page ships broken.
+    # Every asset a page references must exist, or the page ships broken.
+    # Resolved against the page's own directory, since invite/ reaches assets
+    # with ../ and a root-relative check would call every one of them missing.
     for ref in re.findall(r'(?:href|src|srcset)="([^"]+)"', src):
         if ref.startswith(("http://", "https://", "mailto:", "#")):
             continue
-        if not (ROOT / ref).exists():
-            fail(f"missing asset: {ref}")
+        target = (page.parent / ref).resolve()
+        if not target.exists():
+            fail(f"{name}: missing asset: {ref}")
 
     # Nothing is *loaded* from anywhere else. This is the rule that keeps the
-    # page from observing its visitors, and it has no exceptions.
+    # site from observing its visitors, and it has no exceptions.
     for url in re.findall(r'(?:href|src|srcset)="(https?://[^"]+)"', src):
-        fail(f"external origin: {url}")
+        fail(f"{name}: external origin: {url}")
 
     # A form may *send* to exactly one place, and only the beta endpoint.
     for url in re.findall(r'action="([^"]+)"', src):
         if not (url.startswith(ENDPOINT_PREFIX) and url.endswith(ENDPOINT_SUFFIX)):
-            fail(f"a form posts somewhere that is not the beta endpoint: {url}")
+            fail(f"{name}: a form posts somewhere that is not the beta endpoint: {url}")
 
     # The form id and its question ids are filled in by hand, and a page that
     # posts into nowhere looks exactly like one that works.
     for placeholder in re.findall(r"REPLACE_WITH_[A-Z_]+", src):
-        fail(f"{placeholder} was never filled in — see docs/beta-form.md")
+        fail(f"{name}: {placeholder} was never filled in — see docs/beta-form.md")
 
     # No link into a repository a visitor cannot open.
     for repo in PRIVATE_REPOS:
         if repo in src:
-            fail(f"links to a private repository: {repo}")
+            fail(f"{name}: links to a private repository: {repo}")
 
-    # The beta form must post for real, so a visitor with JavaScript disabled
-    # gets a submitted form rather than a button that does nothing.
+    return src
+
+
+def check_form(name: str, src: str) -> None:
+    """The three properties the beta form must keep. See AGENTS.md."""
+    # It must post for real, so a visitor with JavaScript disabled gets a
+    # submitted form rather than a button that does nothing.
     if 'method="post"' not in src:
-        fail("the form no longer posts — it would need JavaScript to work")
+        fail(f"{name}: the form no longer posts — it would need JavaScript to work")
 
     # A cross-origin POST is opaque by design, so a request that never left is
     # invisible unless the page hands over something the visitor can send.
     if 'id="beta-fallback"' not in src or 'id="beta-copy"' not in src:
-        fail("the copyable fallback is gone — a failed submit would be silent")
+        fail(f"{name}: the copyable fallback is gone — a failed submit would be silent")
 
     # And the address stays printed, so there is a way through even if the
     # endpoint is retired.
     if "mailto:getairlock@" not in src:
-        fail("the plain mailto link is gone — the endpoint is the only way in")
+        fail(f"{name}: the plain mailto link is gone — the endpoint is the only way in")
+
+
+def main() -> int:
+    sources = {p: check_page(p) for p in PAGES}
+
+    # Find the form rather than assume where it lives, so moving it between
+    # pages cannot quietly drop its guarantees from this check.
+    carrying = [p for p, src in sources.items() if 'id="beta-form"' in src]
+    if not carrying:
+        fail("no page carries the beta form — the site cannot be signed up to")
+    for page in carrying:
+        check_form(str(page.relative_to(ROOT)), sources[page])
+
+    # And every page must offer a way to reach it.
+    for page, src in sources.items():
+        if page in carrying or not src:
+            continue
+        if 'href="invite/"' not in src and 'href="../invite/"' not in src:
+            fail(f"{page.relative_to(ROOT)}: nothing links to the invite page")
 
     for f in failures:
         print(f"  FAIL  {f}")

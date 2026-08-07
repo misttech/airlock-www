@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Request a beta invite — Airlock</title>
+    <meta
+      name="description"
+      content="The Airlock beta is intentionally small. Tell us what you would run in it."
+    />
+    <link rel="preload" href="../assets/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="../assets/style.css" />
+    <meta property="og:title" content="Request an Airlock beta invite" />
+    <meta
+      property="og:description"
+      content="The Airlock beta is intentionally small. Tell us what you would run in it."
+    />
+    <meta property="og:type" content="website" />
+    <!--
+      One page, one job. Nothing to read here and nothing to scroll past, so
+      the bar carries a way back and nothing else.
+    -->
+  </head>
+  <body class="standalone">
+    <nav class="topbar">
+      <div class="topbar-inner">
+        <a class="topbar-mark" href="../">Airlock</a>
+        <a class="topbar-back" href="../">&#8592; back to home</a>
+      </div>
+    </nav>
+
+    <main>
+    <!--
+      Beta signup.
+
+      GitHub Pages is static — there is no server here to receive a POST, and
+      no static site generator supplies one either. So the form posts off-site.
+
+      It was a mailto: first, which was wrong for a larger group than expected:
+      a mailto: does something only for a visitor whose browser has a mail
+      client registered as its handler, and webmail signed in on another tab is
+      not that. The click silently did nothing.
+
+      Of the things that can receive a POST, this one costs no grant. A
+      third-party form service is a processor holding other people's addresses,
+      and our own Apps Script endpoint wanted "send email as you" and "all your
+      spreadsheets", permanently, so that a signup box could work. A Form asks
+      for nothing.
+
+      Three properties hold it together, and scripts/check.py checks each: it
+      works without JavaScript, a failed submit is never silent, and the address
+      stays printed. See AGENTS.md and docs/beta-form.md.
+    -->
+    <section class="cta" id="beta">
+      <h2>Request a beta invite</h2>
+      <p>
+        Airlock is early and we would rather find the sharp edges with a handful of people
+        than with everyone at once. Tell us what you would run in it.
+      </p>
+
+      <!--
+        A real POST, so it works with JavaScript disabled: the browser navigates
+        to the endpoint and reads its reply. The script below upgrades that to
+        an inline confirmation, and nothing else.
+
+        The endpoint is a Google Form. Posting to its formResponse URL is what
+        the form's own page does, so there is nothing deployed, no code running
+        as anybody, and no OAuth grant behind this — the alternative was a
+        script holding "send email as you" and "all your spreadsheets", which
+        is a lot of authority to hold for a signup box.
+
+        The entry.N names are how a Form identifies its questions; they come
+        from its pre-filled link. docs/beta-form.md has the procedure.
+
+        This is the page's one external origin, and the only one: the page still
+        *loads* nothing from anybody.
+      -->
+      <form
+        id="beta-form"
+        method="post"
+        action="https://docs.google.com/forms/d/e/1FAIpQLSdEPuMVrCM5fBs6sPi4H21wqKPeN2-X_o-VP8hkZfzkWYGwJA/formResponse"
+      >
+        <label for="beta-name" class="muted">your name</label>
+        <input
+          type="text"
+          id="beta-name"
+          name="entry.796249422"
+          placeholder="jane doe"
+          autocomplete="name"
+          required
+        />
+
+        <label for="beta-email" class="muted">your email</label>
+        <input
+          type="email"
+          id="beta-email"
+          name="entry.1110114569"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        />
+
+        <label for="beta-company" class="muted">company (optional)</label>
+        <input
+          type="text"
+          id="beta-company"
+          name="entry.821827679"
+          placeholder="acme"
+          autocomplete="organization"
+        />
+
+        <label for="beta-about" class="muted">what you would run in it (optional)</label>
+        <textarea id="beta-about" name="entry.1163163749" rows="3"></textarea>
+
+        <!--
+          Honeypot. Off-screen and aria-hidden, so a person never meets it and a
+          bot filling every input does. It carries no name attribute, so it is
+          never transmitted; the script drops the submission instead. A bot that
+          posts straight to Google without running this page is not something a
+          static site can stop, and pretending otherwise would be the wrong
+          comment to leave here.
+        -->
+        <div class="trap" aria-hidden="true">
+          <label for="beta-website">leave this empty</label>
+          <input type="text" id="beta-website" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <button type="submit" id="beta-submit">Request an invite</button>
+      </form>
+
+      <p class="muted" id="beta-note">
+        We read these ourselves. No analytics and no tracker — this page loads nothing
+        from anywhere, and submitting is the only time it talks to anyone. You can also
+        just mail <a href="mailto:getairlock@mist-os.com?subject=Airlock%20beta%20invite">getairlock@mist-os.com</a>.
+      </p>
+
+      <div class="fallback" id="beta-ok" hidden role="status" aria-live="polite">
+        <p><strong>Your request is in.</strong> We will mail you at the address you gave.</p>
+      </div>
+
+      <!--
+        The error path. A cross-origin POST is opaque by design — the page
+        cannot read the reply — so a request that never left is the one failure
+        worth handling, and the only honest answer is a message the visitor can
+        send by hand. This is also what the whole form degrades to if the
+        endpoint ever goes away.
+      -->
+      <div class="fallback" id="beta-fallback" hidden>
+        <p>
+          <strong>That did not go through.</strong> Copy this and send it from wherever
+          you read mail, and we will pick it up there.
+        </p>
+        <label for="beta-message" class="muted">
+          to getairlock@mist-os.com · subject: Airlock beta invite
+        </label>
+        <textarea id="beta-message" rows="5" readonly></textarea>
+        <div class="cta-row">
+          <button type="button" id="beta-copy">Copy message</button>
+          <span class="muted" id="beta-copied" role="status" aria-live="polite"></span>
+        </div>
+      </div>
+    </section>
+    </main>
+
+    <script>
+      // Progressive enhancement only. The form posts for real with this
+      // disabled; all this adds is staying on the page to confirm, instead of
+      // navigating to the endpoint's own reply.
+      var form = document.getElementById("beta-form");
+      var submit = document.getElementById("beta-submit");
+      var ok = document.getElementById("beta-ok");
+      var fallback = document.getElementById("beta-fallback");
+      var message = document.getElementById("beta-message");
+      var copied = document.getElementById("beta-copied");
+
+      form.addEventListener("submit", function (e) {
+        var email = document.getElementById("beta-email").value.trim();
+        if (!email) return; // let the browser's own validation speak
+        e.preventDefault();
+
+        // Honeypot filled: report success and send nothing. A bot told it
+        // failed simply tries something else.
+        if (document.getElementById("beta-website").value.trim()) {
+          form.hidden = true;
+          document.getElementById("beta-note").hidden = true;
+          ok.hidden = false;
+          return;
+        }
+
+        // URLSearchParams sends form-urlencoded, which is CORS-safelisted, so
+        // there is no preflight to fail. no-cors because the reply cannot be
+        // read across origins anyway, and is not needed: what the visitor wants
+        // confirmed is that the request left, and it did.
+        var body = new URLSearchParams(new FormData(form));
+
+        submit.disabled = true;
+        submit.textContent = "Sending";
+
+        fetch(form.action, { method: "POST", mode: "no-cors", body: body })
+          .then(function () {
+            form.hidden = true;
+            document.getElementById("beta-note").hidden = true;
+            ok.hidden = false;
+          })
+          .catch(function () {
+            // Only a request that never left lands here. Hand over something
+            // sendable rather than asking them to try again into the dark.
+            submit.disabled = false;
+            submit.textContent = "Request an invite";
+            var field = function (id) {
+              return document.getElementById(id).value.trim();
+            };
+            message.value =
+              "Please add me to the Airlock beta.\n\n" +
+              "Name: " + field("beta-name") + "\n" +
+              "Email: " + email + "\n" +
+              "Company: " + (field("beta-company") || "—") + "\n\n" +
+              "What I would run in it:\n" + field("beta-about");
+            copied.textContent = "";
+            fallback.hidden = false;
+          });
+      });
+
+      // Selecting first means the button still leaves the visitor somewhere
+      // useful when the clipboard is unavailable — over plain http, or with
+      // the permission refused — instead of failing silently.
+      document.getElementById("beta-copy").addEventListener("click", function () {
+        message.focus();
+        message.select();
+        var manually = function () {
+          copied.textContent = "selected — copy it";
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(message.value).then(function () {
+            copied.textContent = "copied";
+          }, manually);
+        } else {
+          manually();
+        }
+      });
+    </script>
+  </body>
+</html>

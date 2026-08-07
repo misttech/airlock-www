@@ -276,6 +276,16 @@ tbody tr + tr td {
   }
 }
 
+.topbar-back {
+  color: var(--text-color-alt);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.topbar-back:hover {
+  color: var(--text-color);
+  text-decoration: underline;
+}
+
 /*
  * Anchored headings must clear the fixed bar, or following a link leaves the
  * heading hidden underneath it and the section looks like it starts mid-
@@ -336,6 +346,55 @@ figure pre {
 }
 figcaption {
   color: var(--text-color-alt);
+}
+
+/* ---- The invite page ------------------------------------------------------ */
+
+/*
+ * One page, one job: the form is the content, so it sits in the middle of the
+ * viewport rather than at the top of a document. Narrower than the document
+ * width too — a form is a column of fields, not prose, and 80ch of empty input
+ * reads as a mistake.
+ */
+body.standalone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  max-width: 64ch;
+}
+
+/*
+ * The lede's call to action, which is all that is left on the home page now
+ * that the form has a page of its own. Filled, because it is the same action
+ * as the bar's button and the two should not disagree about how it looks.
+ */
+.lede-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2ch;
+}
+.button {
+  border: var(--border-thickness) solid var(--text-color);
+  padding: calc(var(--line-height) / 2 - var(--border-thickness)) calc(2ch - var(--border-thickness));
+  text-transform: uppercase;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  background: var(--text-color);
+  color: var(--background-color);
+  white-space: nowrap;
+}
+.button:hover {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+.button:active {
+  transform: translate(2px, 2px);
+}
+.button:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
 }
 
 /* ---- Beta signup ---------------------------------------------------------- */
