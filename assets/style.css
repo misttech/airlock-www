@@ -229,7 +229,10 @@ tbody tr + tr td {
 }
 .topbar-links {
   display: flex;
-  gap: 2ch;
+  /* One space between links rather than two: with six of them, 2ch pushed the
+     row wider than the 80ch column, so the button no longer lined up with the
+     page's right edge. */
+  gap: 1ch;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -266,11 +269,23 @@ tbody tr + tr td {
 }
 
 /*
- * Below roughly 60ch the wordmark, three links and the button stop fitting.
  * The links go and the button stays: the links are shortcuts to content a
  * scroll reaches anyway, and the button is the reason the bar exists.
+ *
+ * The threshold is set from what the bar actually measures, not from a round
+ * number. The links carry white-space: nowrap, so below the width they need
+ * they do not wrap or shrink — they push the button off the right edge, which
+ * looks like nothing is wrong and quietly removes the one control here. It
+ * must fire while there is still room for the whole row, so it is derived from
+ * the widest the row gets rather than guessed at and left to rot the next time
+ * a link is added.
+ *
+ * Measured with six labels: the row needs the full 80ch column (768px), so
+ * 100ch — 800px, since a media query's ch is the initial font's, not this
+ * page's — leaving a little air. Re-measure when the links change:
+ * .topbar-inner scrollWidth against its clientWidth.
  */
-@media (max-width: 60ch) {
+@media (max-width: 100ch) {
   .topbar-links {
     display: none;
   }
