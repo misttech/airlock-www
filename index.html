@@ -19,7 +19,29 @@
     <meta property="og:type" content="website" />
   </head>
   <body>
-    <header class="masthead">
+    <!--
+      Fixed chrome. The page is one long document, so the bar carries the two
+      things worth reaching from the middle of it: where you are, and the
+      signup. Nothing else — there is no account to log into, and the code
+      repositories are private, so a link to them would 404 for every visitor.
+
+      The links are hidden below 60ch rather than folded into a menu button. A
+      hamburger for three anchors on a single page is a control that costs a tap
+      to reveal what a scroll would have reached anyway.
+    -->
+    <nav class="topbar">
+      <div class="topbar-inner">
+        <a class="topbar-mark" href="#top">Airlock</a>
+        <ul class="topbar-links">
+          <li><a href="#why">why microvm</a></li>
+          <li><a href="#cli">the cli</a></li>
+          <li><a href="#built">how it is built</a></li>
+        </ul>
+        <a class="topbar-cta" href="#beta">Request an invite →</a>
+      </div>
+    </nav>
+
+    <header class="masthead" id="top">
       <h1>Airlock</h1>
       <p class="tagline">
         Run untrusted AI-agent code in Firecracker microVMs.<br />
@@ -149,7 +171,7 @@
       </div>
     </section>
 
-    <h2>Why a microVM, not a container</h2>
+    <h2 id="why">Why a microVM, not a container</h2>
 
     <p>
       A container shares the host kernel. A kernel exploit from inside one is a host
@@ -164,7 +186,7 @@
       hosts run no Docker daemon.
     </p>
 
-    <h2>What it looks like</h2>
+    <h2 id="cli">What it looks like</h2>
 
     <pre><code>airlock run python:3.11-slim -- python3 -c "print('hi!')"
 
@@ -200,7 +222,7 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
     </figure>
 
 
-    <h2>How it is built</h2>
+    <h2 id="built">How it is built</h2>
 
     <div class="cols">
       <div>

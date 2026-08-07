@@ -26,6 +26,11 @@
   --line-height: 1.2rem;
   --border-thickness: 2px;
 
+  /* The fixed bar's height, named because three things must agree on it: the
+     bar, the body's top padding, and the scroll offset for anchored headings.
+     Two and a half lines is what fits a bordered button with air around it. */
+  --topbar-height: calc(var(--line-height) * 2.5);
+
   --text-color: #000;
   --text-color-alt: #666;
   --background-color: #fff;
@@ -67,7 +72,11 @@ html {
 
 body {
   margin: 0 auto;
-  padding: calc(var(--line-height) * 2) 2ch;
+  /* Top padding clears the fixed bar and its rule, then leaves a line of air.
+     Derived from --topbar-height so changing the bar cannot leave the first
+     paragraph tucked underneath it. */
+  padding: calc(var(--topbar-height) + var(--border-thickness) + var(--line-height)) 2ch
+    calc(var(--line-height) * 2);
   /* A document width, unlike the dashboard: prose past 80ch is hard to read. */
   max-width: 80ch;
   line-height: var(--line-height);
@@ -181,6 +190,98 @@ tbody tr + tr td {
   border-top: 1px solid var(--text-color-alt);
 }
 
+/* ---- Fixed top bar -------------------------------------------------------- */
+
+/*
+ * Full-bleed, but its contents align to the same 80ch column as the document,
+ * so the wordmark sits directly above the <h1> rather than floating off at the
+ * viewport edge.
+ *
+ * Its height is --topbar-height rather than whatever the tallest child happens
+ * to measure, so the body padding and the anchor scroll offset below can be
+ * derived from it instead of guessed at and left to drift.
+ */
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 10;
+  /* Opaque on purpose. A translucent bar over a character grid turns text into
+     interference the moment anything scrolls under it. */
+  background: var(--background-color);
+  border-bottom: var(--border-thickness) solid var(--text-color);
+}
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 2ch;
+  height: var(--topbar-height);
+  max-width: 80ch;
+  margin: 0 auto;
+  padding: 0 2ch;
+}
+.topbar-mark {
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text-color);
+  /* Pushes everything after it to the right edge. */
+  margin-right: auto;
+}
+.topbar-links {
+  display: flex;
+  gap: 2ch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.topbar-links a {
+  color: var(--text-color-alt);
+  text-decoration: none;
+}
+.topbar-links a:hover {
+  color: var(--text-color);
+  text-decoration: underline;
+}
+.topbar-cta {
+  border: var(--border-thickness) solid var(--text-color);
+  /* Minus the border, so the button is exactly one line-height of content. */
+  padding: 0 calc(1ch - var(--border-thickness));
+  text-transform: uppercase;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  background: var(--text-color);
+  color: var(--background-color);
+  white-space: nowrap;
+}
+.topbar-cta:hover {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+.topbar a:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+}
+
+/*
+ * Below roughly 60ch the wordmark, three links and the button stop fitting.
+ * The links go and the button stays: the links are shortcuts to content a
+ * scroll reaches anyway, and the button is the reason the bar exists.
+ */
+@media (max-width: 60ch) {
+  .topbar-links {
+    display: none;
+  }
+}
+
+/*
+ * Anchored headings must clear the fixed bar, or following a link leaves the
+ * heading hidden underneath it and the section looks like it starts mid-
+ * sentence. One extra line of air so it does not sit flush against the rule.
+ */
+:target {
+  scroll-margin-top: calc(var(--topbar-height) + var(--border-thickness) + var(--line-height));
+}
+
 .masthead {
   border-bottom: var(--border-thickness) solid var(--text-color);
   padding-bottom: var(--line-height);
@@ -285,6 +386,7 @@ figcaption {
   display: block;
   text-transform: uppercase;
 }
+
 /* One line between field groups, so the optional one reads as its own. */
 .cta-row + label {
   margin-top: var(--line-height);
