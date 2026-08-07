@@ -397,6 +397,18 @@ body.standalone {
   outline-offset: 2px;
 }
 
+/*
+ * Sits under the centred card rather than pinned to the viewport floor. On a
+ * page this short, a footer stuck to the bottom of the window reads as a
+ * separate thing that floated down there; under the card it reads as the end.
+ */
+.standalone-footer {
+  text-align: center;
+  /* The document footer's rule separates it from a long page. Here it would be
+     a second line directly under the card's own border, reading as a mistake. */
+  border-top: none;
+}
+
 /* ---- Beta signup ---------------------------------------------------------- */
 
 .cta {
