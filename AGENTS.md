@@ -34,6 +34,18 @@ Operating guide for humans and AI coding agents working in **airlock-www**.
   adapted from [The Monospace Web](https://github.com/owickstrom/the-monospace-web)
   (MIT). Everything lands on a character grid. Colour is not decoration.
 
+## The domain
+
+The site is served at `airlock.mist-os.com`, which is what the `CNAME` file at
+the root declares. It is committed rather than left to the repository setting
+because publishing goes through a workflow: the deployed artifact is the whole
+tree, so the domain travels with the deploy and is visible in a diff like
+everything else here.
+
+Every path on the site is relative for the same reason it always was — it makes
+the tree serveable from any prefix, which is what let the domain change without
+touching a page.
+
 ## Pages
 
 Two: `index.html`, and `invite/index.html` which is the beta form on a page of
