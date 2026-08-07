@@ -21,6 +21,25 @@
       One page, one job. Nothing to read here and nothing to scroll past, so
       the bar carries a way back and nothing else.
     -->
+    <!--
+      Google Analytics. This is the one thing on the site loaded from somewhere
+      else, and it is the one thing that observes the reader — so it is written
+      down here, in AGENTS.md, and in the copy on the invite page, rather than
+      being true quietly.
+
+      scripts/check.py allows exactly this origin and fails on any other, and
+      fails if the page ever claims again to have no analytics while this is
+      present.
+    -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=REPLACE_WITH_GA_MEASUREMENT_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "REPLACE_WITH_GA_MEASUREMENT_ID");
+    </script>
   </head>
   <body class="standalone">
     <nav class="topbar">
@@ -130,9 +149,10 @@
       </form>
 
       <p class="muted" id="beta-note">
-        We read these ourselves. No analytics and no tracker — this page loads nothing
-        from anywhere, and submitting is the only time it talks to anyone. You can also
-        just mail <a href="mailto:getairlock@mist-os.com?subject=Airlock%20beta%20invite">getairlock@mist-os.com</a>.
+        We read these ourselves — your address goes to us, not to a form service that
+        keeps it. The site does measure page views with Google Analytics, which is the
+        one thing here that watches you. You can also skip the form and just mail
+        <a href="mailto:getairlock@mist-os.com?subject=Airlock%20invite">getairlock@mist-os.com</a>.
       </p>
 
       <div class="fallback" id="beta-ok" hidden role="status" aria-live="polite">

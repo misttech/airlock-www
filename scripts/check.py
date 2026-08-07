@@ -31,6 +31,11 @@ PRIVATE_REPOS = ("github.com/misttech/airlock", "github.com/misttech/airlock-ui"
 ENDPOINT_PREFIX = "https://docs.google.com/forms/d/e/"
 ENDPOINT_SUFFIX = "/formResponse"
 
+# The analytics tag: the one thing the site *loads* from elsewhere, and the one
+# thing that observes the reader. Named here so a second tracker cannot arrive
+# without someone editing this line and noticing what they are doing.
+ANALYTICS_PREFIX = "https://www.googletagmanager.com/gtag/js?id="
+
 failures: list[str] = []
 
 
@@ -86,10 +91,22 @@ def check_page(page: pathlib.Path) -> str:
         if not target.exists():
             fail(f"{name}: missing asset: {ref}")
 
-    # Nothing is *loaded* from anywhere else. This is the rule that keeps the
-    # site from observing its visitors, and it has no exceptions.
+    # Nothing is *loaded* from anywhere else, with one named exception. Every
+    # other origin is a third party watching everyone who reads the page.
     for url in re.findall(r'(?:href|src|srcset)="(https?://[^"]+)"', src):
+        if url.startswith(ANALYTICS_PREFIX):
+            continue
         fail(f"{name}: external origin: {url}")
+
+    # And the site must not tell visitors it has no analytics while loading
+    # analytics. The copy said exactly that until the tag was added, directly
+    # above the field where someone types their email — a claim like that going
+    # stale is worse than never having made it.
+    # Comments are stripped first: this is about what a visitor reads, and the
+    # tag above is documented in a comment that would otherwise match itself.
+    visible = re.sub(r"<!--.*?-->", "", src, flags=re.S)
+    if ANALYTICS_PREFIX in src and re.search(r"no analytics|no tracker", visible, re.I):
+        fail(f"{name}: loads analytics and also claims not to")
 
     # A form may *send* to exactly one place, and only the beta endpoint.
     for url in re.findall(r'action="([^"]+)"', src):
@@ -98,8 +115,9 @@ def check_page(page: pathlib.Path) -> str:
 
     # The form id and its question ids are filled in by hand, and a page that
     # posts into nowhere looks exactly like one that works.
-    for placeholder in re.findall(r"REPLACE_WITH_[A-Z_]+", src):
-        fail(f"{name}: {placeholder} was never filled in — see docs/beta-form.md")
+    for placeholder in sorted(set(re.findall(r"REPLACE_WITH_[A-Z_]+", src))):
+        where = "docs/analytics.md" if "GA_" in placeholder else "docs/beta-form.md"
+        fail(f"{name}: {placeholder} was never filled in — see {where}")
 
     # No link into a repository a visitor cannot open.
     for repo in PRIVATE_REPOS:
