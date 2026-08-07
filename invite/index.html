@@ -31,14 +31,14 @@
       fails if the page ever claims again to have no analytics while this is
       present.
     -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=REPLACE_WITH_GA_MEASUREMENT_ID"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-K9SEB4YNEE"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
       gtag("js", new Date());
-      gtag("config", "REPLACE_WITH_GA_MEASUREMENT_ID");
+      gtag("config", "G-K9SEB4YNEE");
     </script>
   </head>
   <body class="standalone">
@@ -226,6 +226,19 @@
             form.hidden = true;
             document.getElementById("beta-note").hidden = true;
             ok.hidden = false;
+
+            // Analytics counts that a request was made — never what was in it.
+            // The name, address and company do not leave for Google: sending
+            // them would breach its own terms, and this page tells the reader
+            // their address goes to us.
+            //
+            // Called explicitly because this handler calls preventDefault and
+            // posts with fetch, so there is no native form submission for
+            // enhanced measurement to observe. Guarded because an ad blocker
+            // leaves gtag undefined, and a signup must not fail over a metric.
+            if (typeof gtag === "function") {
+              gtag("event", "generate_lead");
+            }
           })
           .catch(function () {
             // Only a request that never left lands here. Hand over something
