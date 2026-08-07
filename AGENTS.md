@@ -11,17 +11,25 @@ Operating guide for humans and AI coding agents working in **airlock-www**.
   reviewable in a diff and cannot break because a toolchain moved underneath
   it. A generator would need a written justification, not a preference — and
   the site is one page.
-- **Nothing is loaded from another origin.** No CDN font, script, tracker,
-  analytics, or embed. Every asset is committed and served from this
-  repository, so the page observes nobody — a property to keep deliberately
-  rather than lose to a convenient embed.
+- **Two named external origins, and no others.** Every asset — font,
+  stylesheet, image — is committed and served from this repository. Beyond
+  that the site talks to exactly two places, both listed in `scripts/check.py`
+  and both failing the build if a third appears:
 
-  **One origin is written to**, and only one: the beta form posts to its
-  endpoint when a visitor clicks the button. Never on load, never anything
-  else. `make check` enforces the two halves separately, because they are
-  different rules — a form action is somewhere a visitor chose to send their
-  own address, and a CDN font is a third party watching everyone who reads the
-  page. Adding a *second* endpoint, or any load, needs a written justification.
+  1. **The beta form posts** to its Google Form endpoint, on an explicit click.
+     A visitor choosing to send us their own address.
+  2. **Google Analytics loads** on every page. This one is different in kind and
+     the difference is worth keeping in view: it runs for everybody, whether or
+     not they do anything, and it is a third party watching people read.
+
+  The second was added deliberately, having previously been ruled out. What was
+  ruled out with it is the *claim* — the invite page told visitors it had no
+  analytics, and that sentence had to change in the same commit. `make check`
+  now fails if the page ever loads analytics while claiming not to, because that
+  is the failure worth machine-checking: not the tag, the lie.
+
+  A third origin, of either kind, needs a written justification. See
+  [`docs/analytics.md`](docs/analytics.md).
 - **This repository is public; the code repositories are not.** That asymmetry
   is the reason the site lives here at all — GitHub Pages on a free plan
   requires a public repository, and putting the site in `airlock` would have
