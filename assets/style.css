@@ -387,8 +387,48 @@ figcaption {
   text-transform: uppercase;
 }
 
-/* One line between field groups, so the optional one reads as its own. */
-.cta-row + label {
+/*
+ * Fields stack full-width rather than sitting beside the button. With four of
+ * them a side-by-side row would wrap into a ragged grid at most widths, and a
+ * stack reads as a single column of things to fill in — which is what it is.
+ */
+.cta input,
+.cta textarea {
+  display: block;
+  width: 100%;
+}
+.cta form label + input,
+.cta form label + textarea {
+  margin-top: calc(var(--line-height) / 2);
+}
+.cta form input + label,
+.cta form textarea + label {
+  margin-top: var(--line-height);
+}
+
+/*
+ * The submit is the one inverted control on the page. In a design system with
+ * no accent colour, filled-versus-outlined is the only way to say "this is the
+ * action" — so it is spent here and nowhere else, apart from the bar's copy of
+ * the same button.
+ */
+.cta button[type="submit"] {
+  width: 100%;
+  margin-top: var(--line-height);
+  background: var(--text-color);
+  color: var(--background-color);
+}
+.cta button[type="submit"]:hover {
+  background: var(--background-color);
+  color: var(--text-color);
+}
+.cta button[type="submit"][disabled],
+.cta button[type="submit"][disabled]:hover {
+  background: var(--text-color);
+  color: var(--background-color);
+}
+/* The note is about the form, not part of it, so it gets a line of its own. */
+.cta form + p {
   margin-top: var(--line-height);
 }
 
