@@ -237,6 +237,9 @@ tbody tr + tr td {
 .topbar-links a {
   color: var(--text-color-alt);
   text-decoration: none;
+  /* One word each, on one line. A nav that wraps turns a 2.5-line bar into a
+     4-line one and shoves the whole page down with it. */
+  white-space: nowrap;
 }
 .topbar-links a:hover {
   color: var(--text-color);
