@@ -61,7 +61,7 @@
     </p>
 
     <p class="lede-cta">
-      <a class="button" href="invite/">Request a beta invite &#8594;</a>
+      <a class="button" href="invite/">Request an invite &#8594;</a>
       <span class="muted">Early, and intentionally small.</span>
     </p>
 
@@ -201,45 +201,39 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
       </div>
     </div>
 
-    <h2>The pieces</h2>
+    <h2 id="security">Security first</h2>
 
-    <div class="table-wrap">
-      <table>
-      <thead>
-        <tr>
-          <th>binary</th>
-          <th>language</th>
-          <th>role</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>airlock</code></td>
-          <td>Go</td>
-          <td>the CLI — the first-class interface</td>
-        </tr>
-        <tr>
-          <td><code>airlockctrld</code></td>
-          <td>Go</td>
-          <td>control plane: API, scheduler, registry, idle reaper</td>
-        </tr>
-        <tr>
-          <td><code>airlockrunner</code></td>
-          <td>Go</td>
-          <td>host agent — owns the microVMs on one host</td>
-        </tr>
-        <tr>
-          <td><code>airlockd</code></td>
-          <td>Rust</td>
-          <td>guest daemon: a vsock supervisor, PID 1 inside each microVM</td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+    <p>
+      A guest gets <strong>no egress by default</strong>. Reaching the network at all means
+      an operator allowlisted the destination, which is the opposite of the usual arrangement
+      where code is loose until somebody notices. Alongside it are hard ceilings — CPU,
+      memory, process count, disk, and wall clock — because a workload that will not stop is
+      as much of a problem as one that escapes, and the VM is destroyed when the session ends
+      rather than reused.
+    </p>
+
+    <p>
+      Exactly one component reads untrusted input: the guest daemon that receives code over
+      vsock and runs it. That one is <strong>Rust</strong>, deliberately tiny, with a minimal
+      dependency list — the rest of the system is Go, and the language boundary is drawn
+      where the hostile input is. The host never shells out to <code>nft</code>,
+      <code>ip</code>, or <code>mke2fs</code> either; it talks to the kernel directly, so
+      there is no command line for guest-influenced data to be interpolated into.
+    </p>
+
+    <p>
+      <strong>SOC 2 is a design input, not a retrofit.</strong> Every RPC resolves a
+      principal from peer credentials, a client certificate, or a forwarded OIDC token, and
+      security-relevant actions leave an audit record naming who did them. Storage is scoped
+      by tenant, credentials come from the environment and are never committed, and the
+      control plane refuses to start in an unauthenticated network configuration rather than
+      warning about it.
+    </p>
 
     <p class="muted">
-      The guest daemon is Rust because it is the one component that parses hostile input over
-      vsock. It is deliberately tiny, with a minimal dependency list.
+      What is not yet true is written down too: tenant isolation today is control-plane
+      scoping, and the remaining shared surfaces are tracked in the open rather than implied
+      away. Ask us for the current state — we would rather tell you than have you find out.
     </p>
 
     <hr />
@@ -247,6 +241,9 @@ airlock logs -f &lt;id&gt;               # output, even when stopped</code></pre
     <footer>
       <p>
         <a href="mailto:getairlock@mist-os.com">getairlock@mist-os.com</a>
+      </p>
+      <p class="muted">
+        &copy; 2026 Mist Tecnologia LTDA (Mist Technologies)
       </p>
     </footer>
 
