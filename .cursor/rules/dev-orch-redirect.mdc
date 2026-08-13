@@ -1,0 +1,23 @@
+---
+description: Redirect design and implementation work to the dev orchestrator
+alwaysApply: true
+---
+
+# This repo is driven by `airlock-dev-orch`
+
+- Design, specification, and implementation work happens in `../airlock-dev-orch`.
+  `cd` there and run the spec or code graph — do not start it here.
+- Non-trivial changes need an RFC in `../airlock-dev-orch/docs/rfc/`, reviewed by a
+  second agent and approved by a human.
+- Trivial fixes (typo, comment, formatting) may be made here, on a
+  `<tool>/<model>/<feature>` branch, naming the `trivial` exemption in the PR.
+- **Building and testing here is always fine** — this repo is self-contained:
+  `mise install && make check` works with no orchestrator on disk. Nothing in
+  the build may reference `../airlock-dev-orch`.
+- Never commit to the default branch. Linear history, PRs only, rebase merge.
+- Add commits in response to review; **never force-push** without explicit
+  human permission.
+- `make fmt` and `make lint` clean before every commit; commits carry an `RFC:`
+  footer and a `Co-Authored-By` trailer for this tool
+  (`Co-Authored-By: Cursor <cursoragent@cursor.com>`).
+- A human approves and merges every PR. No agent does.
