@@ -92,8 +92,9 @@
         The entry.N names are how a Form identifies its questions; they come
         from its pre-filled link. docs/beta-form.md has the procedure.
 
-        This is the page's one external origin, and the only one: the page still
-        *loads* nothing from anybody.
+        This is the one origin the form *sends* to, on an explicit click. The
+        page also *loads* Google Analytics on arrival — a different origin,
+        named in the <head>, in AGENTS.md, and in scripts/check.py.
       -->
       <form
         id="beta-form"
