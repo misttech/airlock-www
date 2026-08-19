@@ -24,10 +24,10 @@ PAGES = [ROOT / "index.html", ROOT / "invite" / "index.html"]
 # Repositories that are private. A link to one 404s for every visitor.
 PRIVATE_REPOS = ("github.com/misttech/airlock", "github.com/misttech/airlock-ui")
 
-# The one origin the page may talk to: the beta form's Google Form. It is
-# somewhere the page *sends* to on an explicit click, never somewhere it loads
-# from — that distinction is the whole of the no-external-origin rule, so the
-# two are checked separately below.
+# The two origins the page may talk to. The form endpoint is somewhere the
+# page *sends* to on an explicit click. The analytics tag, named below, is
+# somewhere it *loads* from on arrival. That distinction is why they are
+# checked separately rather than as one allow-list.
 ENDPOINT_PREFIX = "https://docs.google.com/forms/d/e/"
 ENDPOINT_SUFFIX = "/formResponse"
 

@@ -3,10 +3,11 @@
 The site loads **Google Analytics 4** on both pages. This is the only thing it
 loads from anywhere but this repository.
 
-**The tag is already in the markup.** `index.html` and `invite/index.html` each
-carry the GA snippet in their `<head>`. The only thing missing is the
-measurement id, which is an account-specific string only you can produce. That
-is what the rest of this page is about.
+**The tag and the measurement id are already in the markup.** `index.html` and
+`invite/index.html` each carry the GA snippet in their `<head>`, configured
+with `G-K9SEB4YNEE`. The rest of this page is the procedure that produced that
+id — how to create a replacement property if this one is retired, and the
+settings worth changing while you are already in the Google UI.
 
 ---
 
@@ -98,17 +99,18 @@ You need one string from that screen, not the block around it.
 
 ## 5. Put the id in the pages
 
-Replace `REPLACE_WITH_GA_MEASUREMENT_ID` with your `G-XXXXXXXXXX`:
+This is already done: both pages use `G-K9SEB4YNEE`. To point them at a
+different property, replace that string in four places:
 
 | file | occurrences |
 |---|---|
 | [`index.html`](../index.html) | 2 — the script `src`, and the `gtag("config", …)` call |
 | [`invite/index.html`](../invite/index.html) | 2 — same two |
 
-Four in total. Then:
+Then:
 
 ```sh
-make check     # fails while any placeholder remains
+make check     # fails while any REPLACE_WITH_GA_MEASUREMENT_ID remains
 ```
 
 ## 6. Settings worth changing before you forget
@@ -129,7 +131,7 @@ In **Admin**, once the property exists:
 
 ## 7. Verify it
 
-After merging and deploying, with the real id in place:
+On the live site:
 
 1. **Realtime** in GA — open `https://airlock.mist-os.com` in another tab and
    watch the active-user count. It appears within seconds. If it does not, GA is
