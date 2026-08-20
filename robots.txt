@@ -1,0 +1,16 @@
+# https://airlock.mist-os.com
+#
+# GitHub Pages publishes this whole tree, so without this file a crawler
+# treats docs, scripts, and the rest as part of the site. The site is two
+# pages. Everything else is the repository, already public on GitHub.
+
+User-agent: *
+Allow: /
+Disallow: /docs/
+Disallow: /scripts/
+Disallow: /.github/
+Disallow: /*.md$
+Disallow: /LICENSE
+Disallow: /NOTICE
+Disallow: /Makefile
+Disallow: /CNAME
