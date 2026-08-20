@@ -36,6 +36,11 @@ ENDPOINT_SUFFIX = "/formResponse"
 # without someone editing this line and noticing what they are doing.
 ANALYTICS_PREFIX = "https://www.googletagmanager.com/gtag/js?id="
 
+# The site's own origin. A canonical href names this URL; it is not a third
+# party and it is not a load. Named so a second domain cannot arrive as
+# "canonical" without editing this line.
+SITE_PREFIX = "https://airlock.mist-os.com"
+
 failures: list[str] = []
 
 
@@ -93,10 +98,25 @@ def check_page(page: pathlib.Path) -> str:
 
     # Nothing is *loaded* from anywhere else, with one named exception. Every
     # other origin is a third party watching everyone who reads the page.
+    # The site's own origin is allowed: a canonical is a name, not a fetch.
     for url in re.findall(r'(?:href|src|srcset)="(https?://[^"]+)"', src):
         if url.startswith(ANALYTICS_PREFIX):
             continue
+        if url == SITE_PREFIX or url.startswith(SITE_PREFIX + "/"):
+            continue
         fail(f"{name}: external origin: {url}")
+
+    # GitHub Pages serves each page at both /path/ and /path/index.html.
+    # A self-canonical is what stops Google treating those as two URLs and
+    # dropping the one we actually want indexed.
+    rel = page.relative_to(ROOT)
+    if rel.name == "index.html":
+        parent = rel.parent.as_posix()
+        canonical = f"{SITE_PREFIX}/" if parent == "." else f"{SITE_PREFIX}/{parent}/"
+    else:
+        canonical = f"{SITE_PREFIX}/{rel.as_posix()}"
+    if f'rel="canonical" href="{canonical}"' not in src:
+        fail(f"{name}: missing canonical {canonical}")
 
     # And the site must not tell visitors it has no analytics while loading
     # analytics. The copy said exactly that until the tag was added, directly

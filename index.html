@@ -9,6 +9,12 @@
       name="description"
       content="Airlock gives an AI agent a place to run generated code that assumes the code is hostile: each session is a Firecracker microVM with its own kernel. Minimal, self-hostable, on-prem first."
     />
+    <!--
+      GitHub Pages serves the same bytes at / and at /index.html, both as
+      200. Without a canonical Google treats them as duplicates and picks
+      one — and it has picked the other, so this URL is not indexed.
+    -->
+    <link rel="canonical" href="https://airlock.mist-os.com/" />
     <link rel="preload" href="assets/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="assets/style.css" />
     <meta property="og:title" content="Airlock" />
@@ -16,6 +22,7 @@
       property="og:description"
       content="Run untrusted AI-agent code in Firecracker microVMs. Minimal, self-hostable, on-prem first — cloud-ready by construction."
     />
+    <meta property="og:url" content="https://airlock.mist-os.com/" />
     <meta property="og:type" content="website" />
     <!--
       Google Analytics. This is the one thing on the site loaded from somewhere
